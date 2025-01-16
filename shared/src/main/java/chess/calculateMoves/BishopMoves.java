@@ -16,9 +16,6 @@ public class BishopMoves {
         CheckMove.upAndRight(board, position, color, row, col, possibleMoves);
         CheckMove.downAndLeft(board, position, color, row, col, possibleMoves);
         CheckMove.downAndRight(board, position, color, row, col, possibleMoves);
-        for (ChessMove move : possibleMoves) {
-            System.out.println(move);
-        }
 
         return possibleMoves;
     }
