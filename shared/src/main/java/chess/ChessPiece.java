@@ -64,9 +64,9 @@ public class ChessPiece {
             case KNIGHT:
                 possibelMoves = KnightMoves.calculateMoves(board, myPosition, pieceColor);
                 break;
-            // case PAWN:
-            //     possibelMoves = PawnMoves.calculateMoves(board, myPosition, pieceColor);
-            //     break;
+            case PAWN:
+                possibelMoves = PawnMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
             case QUEEN:
                 possibelMoves = QueenMoves.calculateMoves(board, myPosition, pieceColor);
                 break;
