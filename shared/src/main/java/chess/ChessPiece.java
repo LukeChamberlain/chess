@@ -1,8 +1,8 @@
 package chess;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-
+import chess.calculateMoves.*;
+import java.util.HashSet;
 
 /**
  * Represents a single chess piece
@@ -53,7 +53,30 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        HashSet<ChessMove> possibelMoves = new HashSet<>();
+        switch (type) {
+            case BISHOP:
+                possibelMoves = BishopMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
+            case KING:
+                possibelMoves = KingMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
+            case KNIGHT:
+                possibelMoves = KnightMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
+            case PAWN:
+                possibelMoves = PawnMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
+            case QUEEN:
+                possibelMoves = QueenMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
+            case ROOK:
+                possibelMoves = RookMoves.calculateMoves(board, myPosition, pieceColor);
+                break;
+            default:
+                break;
+        }
+        return possibelMoves;
     }
 
     @Override

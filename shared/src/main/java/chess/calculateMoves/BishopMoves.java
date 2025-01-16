@@ -2,7 +2,6 @@ package chess.calculateMoves;
 
 import chess.ChessBoard;
 import chess.ChessMove;
-import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.ChessGame;
 import java.util.HashSet;
@@ -17,6 +16,9 @@ public class BishopMoves {
         CheckMove.upAndRight(board, position, color, row, col, possibleMoves);
         CheckMove.downAndLeft(board, position, color, row, col, possibleMoves);
         CheckMove.downAndRight(board, position, color, row, col, possibleMoves);
+        for (ChessMove move : possibleMoves) {
+            System.out.println(move);
+        }
 
         return possibleMoves;
     }
