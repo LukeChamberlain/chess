@@ -17,7 +17,7 @@ public class PawnMoves {
         addMoveForPawn(board, position, new ChessPosition(row + direction, col), color, possibleMoves, false);
 
 
-        if ((color == ChessGame.TeamColor.WHITE && row == 7) || (color == ChessGame.TeamColor.BLACK && row == 2)) {
+        if ((color == ChessGame.TeamColor.WHITE && row == 2) || (color == ChessGame.TeamColor.BLACK && row == 7) && board.getPiece(new ChessPosition(row + 1 * direction, col)) == null) {
             addMoveForPawn(board, position, new ChessPosition(row + 2 * direction, col), color, possibleMoves, false);
         }
 
