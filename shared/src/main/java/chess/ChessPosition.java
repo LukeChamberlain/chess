@@ -1,6 +1,5 @@
 package chess;
-
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single square position on a chess board
@@ -50,8 +49,4 @@ public class ChessPosition {
         return Objects.hash(row, col);
     }
 
-    @Override
-    public String toString() {
-        return "Position{r" + row + "c" + col + '}';
-    }
 }

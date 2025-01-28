@@ -1,6 +1,6 @@
 package chess;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents moving a chess piece on a chessboard
