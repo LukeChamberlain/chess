@@ -10,6 +10,7 @@ import java.util.Collection;
  */
 public class ChessGame {
     TeamColor currentTurn;
+    ChessBoard board;
     public ChessGame() {
         this.currentTurn = TeamColor.WHITE;
     }
@@ -76,6 +77,9 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        if (isInCheck(teamColor)) {
+            
+        }
         throw new RuntimeException("Not implemented");
     }
 
