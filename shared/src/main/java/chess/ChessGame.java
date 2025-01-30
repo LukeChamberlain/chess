@@ -72,9 +72,6 @@ public class ChessGame {
         }
         return validMoves;
     }
-    
-    
-
     /**
      * Makes a move in a chess game
      *
@@ -82,6 +79,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        ChessPosition start = move.getStartPosition();
+        ChessPiece piece = board.getPiece(start);
+
+        if (piece == null) throw new InvalidMoveException("No piece at start position");
+        if (piece.getTeamColor() != currentTurn) throw new InvalidMoveException("Not the current team's turn");
+        Collection<ChessMove> valid = validMoves(start);
+        if (valid == null || !valid.contains(move)) throw new InvalidMoveException("Invalid move");
+
         applyMoveToBoard(move, board);
         currentTurn = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
@@ -98,7 +103,6 @@ public class ChessGame {
         }
         return copy;
     }
-
     private void applyMoveToBoard(ChessMove move, ChessBoard board){
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
@@ -117,7 +121,6 @@ public class ChessGame {
     public ChessBoard getBoard(){
         return board;
     }
-
     /**
      * Determines if the given team is in check
      *
@@ -154,7 +157,6 @@ public class ChessGame {
         }
         return false;
     }
-
     /**
      * Determines if the given team is in checkmate
      *
