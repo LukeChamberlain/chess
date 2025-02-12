@@ -8,9 +8,8 @@ import java.util.*;
  * signature of the existing methods.
  */
 public class ChessPosition {
-
-    private final int row;
-    private final int col;
+    int row;
+    int col;
     public ChessPosition(int row, int col) {
         this.row = row;
         this.col = col;

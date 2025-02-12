@@ -14,13 +14,13 @@ public class PawnMoves {
         int col = position.getColumn();
         int direction = (color == ChessGame.TeamColor.WHITE) ? 1 : -1;
 
-        addMoveForPawn(board, position, new ChessPosition(row + direction, col), color, possibleMoves, false);
 
 
         if ((color == ChessGame.TeamColor.WHITE && row == 2) || (color == ChessGame.TeamColor.BLACK && row == 7) && board.getPiece(new ChessPosition(row + 1 * direction, col)) == null) {
             addMoveForPawn(board, position, new ChessPosition(row + 2 * direction, col), color, possibleMoves, false);
         }
 
+        addMoveForPawn(board, position, new ChessPosition(row + direction, col), color, possibleMoves, false);
         addMoveForPawn(board, position, new ChessPosition(row + direction, col - 1), color, possibleMoves, true);
         addMoveForPawn(board, position, new ChessPosition(row + direction, col + 1), color, possibleMoves, true);
 
