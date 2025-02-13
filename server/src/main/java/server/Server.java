@@ -10,8 +10,11 @@ public class Server {
         Spark.staticFiles.location("web");
 
         Spark.get("/", (request, response) -> {
-            //show something
-            return "get";
+            response.status(200);
+            response.type("text/plain");
+            response.header("CS240", "Awesome!");
+            response.body("Hello, World!");
+            return response.body();
         });
         Spark.post("/", (request, response) -> {
             //create something
