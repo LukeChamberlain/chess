@@ -1,16 +1,22 @@
 package server;
 
 import com.google.gson.Gson;
+
+import dataaccess.UserStorage;
 import spark.*;
 import java.util.*;
 
-public class UserReg implements UserService {
+public class UserReg{
     public static Gson gson = new Gson();
-    public static Map<String, String> users = new HashMap<>();
+    @SuppressWarnings("unused")
+    private final UserStorage userStorage;
     public static Set<String> validTokens = new HashSet<>();
     
-    @Override
-        public String register(Request request, Response response) {
+    public UserReg(UserStorage storage) {
+        this.userStorage = storage;
+    }
+
+        public static String register(Request request, Response response) {
             try{
                 User user = new Gson().fromJson(request.body(), User.class);
 
@@ -18,7 +24,6 @@ public class UserReg implements UserService {
                     response.status(400);
                     return gson.toJson(Map.of("message", "Error: bad request"));
                 }
-                users.put(user.username, user.password);
                 String authToken = generateToken();
                 validTokens.add(authToken);
 
@@ -42,9 +47,13 @@ public class UserReg implements UserService {
         
         
         private static class AuthResponse {
+            @SuppressWarnings("unused")
             String username;
+            @SuppressWarnings("unused")
             String password;
+            @SuppressWarnings("unused")
             String authToken;
+            @SuppressWarnings("unused")
             String email;
             AuthResponse(String username, String password, String email, String authToken) {
                 this.username = username;

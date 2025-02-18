@@ -8,7 +8,6 @@ import java.util.Set;
 public class Server {
     public static Set<String> tokens = new HashSet<>();
     public static Gson gson = new Gson();
-    private static final UserService userService = new UserReg();
     public static void main(String[] args) {
         Server server = new Server();
         server.run(4567);
@@ -29,7 +28,7 @@ public class Server {
             }
         });
           
-        Spark.post("/user", (request, response) -> userService.register(request, response));
+        Spark.post("/user", (request, response) -> UserReg.register(request, response));
 
         Spark.exception(Exception.class, (exception, req, res) -> {
             res.status(500);
