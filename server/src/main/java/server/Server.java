@@ -4,10 +4,26 @@ import spark.*;
 
 public class Server {
 
+    public static void main(String[] args) {
+        Server server = new Server();
+        server.run(4567);
+    }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        // Spark.before((request, response) -> { 
+        //     boolean authenticated = false; 
+          
+        //     // ... check if authenticated 
+          
+        //     if (!authenticated) { 
+        //       Spark.halt(401, "You are not welcome here"); 
+        //     } 
+        //   });
+          
 
         Spark.get("/", (request, response) -> {
             response.status(200);
