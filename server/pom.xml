@@ -12,8 +12,8 @@
     </parent>
 
     <packaging>jar</packaging>
-
     <build>
+        <!-- <testSourceDirectory>src/tests/java</testSourceDirectory> -->
         <finalName>server</finalName>
         <resources>
             <resource>

@@ -28,7 +28,7 @@ public class Server {
             }
         });
           
-        Spark.post("/user", (request, response) -> UserReg.register(request, response));
+        Spark.post("/user", (request, response) -> new UserReg().register(request, response));
 
         Spark.exception(Exception.class, (exception, req, res) -> {
             res.status(500);
@@ -36,5 +36,9 @@ public class Server {
         });
 
         return desiredPort;
+    }
+    public void stop() {
+        Spark.stop();
+        Spark.awaitStop();
     }
 }

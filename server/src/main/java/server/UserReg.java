@@ -8,7 +8,6 @@ import java.util.*;
 
 public class UserReg{
     public static Gson gson = new Gson();
-    @SuppressWarnings("unused")
     private final UserStorage userStorage;
     public static Set<String> validTokens = new HashSet<>();
     
@@ -16,7 +15,7 @@ public class UserReg{
         this.userStorage = storage;
     }
 
-        public static String register(Request request, Response response) {
+        public String register(Request request, Response response) {
             try{
                 User user = new Gson().fromJson(request.body(), User.class);
 
@@ -24,15 +23,21 @@ public class UserReg{
                     response.status(400);
                     return gson.toJson(Map.of("message", "Error: bad request"));
                 }
+
+                if (!userStorage.addUser(user.username, user.password, user.email)) {
+                    response.status(403);
+                    return gson.toJson(Map.of("message", "Error: already taken"));
+                }
+
                 String authToken = generateToken();
                 validTokens.add(authToken);
 
                 response.status(200);
                 response.type("application/json");
-                return gson.toJson(new AuthResponse(user.username,user.password, user.email, authToken));
+                return gson.toJson(new AuthResponse(user.username, authToken));
             } catch (Exception e) {
                 response.status(500);
-                return gson.toJson(Map.of("message", "Error: Invalid user data"));
+                return gson.toJson(Map.of("message", e.getMessage()));
             }
         }
     
@@ -44,21 +49,13 @@ public class UserReg{
             String password;
             String email;
         }
-        
-        
         private static class AuthResponse {
             @SuppressWarnings("unused")
             String username;
             @SuppressWarnings("unused")
-            String password;
-            @SuppressWarnings("unused")
             String authToken;
-            @SuppressWarnings("unused")
-            String email;
-            AuthResponse(String username, String password, String email, String authToken) {
+            AuthResponse(String username, String authToken) {
                 this.username = username;
-                this.password = password;
-                this.email = email;
                 this.authToken = authToken;
             }
         }
