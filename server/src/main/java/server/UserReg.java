@@ -30,7 +30,7 @@ public class UserReg{
                 }
 
                 String authToken = generateToken();
-                validTokens.add(authToken);
+                Server.tokens.add(authToken);
 
                 response.status(200);
                 response.type("application/json");

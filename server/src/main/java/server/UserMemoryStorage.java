@@ -26,6 +26,11 @@ public class UserMemoryStorage implements UserStorage {
         return user != null ? user.password : null;
     }
 
+    @Override
+    public void clearAllUsers() {
+        users.clear();
+    }
+
     private static class User {
         @SuppressWarnings("unused")
         String username;
