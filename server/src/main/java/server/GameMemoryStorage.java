@@ -11,7 +11,20 @@ public class GameMemoryStorage implements GameStorage {
     public void clearAllGames() {
         games.clear();
     }
+    @Override
+    public void addGame(String gameID, String gameName) {
+        games.put(gameID, new Game(gameID, gameName));
+    }
     private static class Game{
+        @SuppressWarnings("unused")
+        String gameID;
+        @SuppressWarnings("unused")
+        String gameName;
+
+        Game(String gameID, String gameName) {
+            this.gameID = gameID;
+            this.gameName = gameName;
+        }
 
     }
 }
