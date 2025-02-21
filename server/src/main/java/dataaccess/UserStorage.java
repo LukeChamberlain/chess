@@ -5,4 +5,5 @@ public interface UserStorage {
     boolean userExists(String username);
     String getPassword(String username);
     void clearAllUsers();
+    String getUsernameFromToken(String token);
 }

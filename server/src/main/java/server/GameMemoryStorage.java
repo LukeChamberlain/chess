@@ -15,15 +15,25 @@ public class GameMemoryStorage implements GameStorage {
     public void addGame(String gameID, String gameName) {
         games.put(gameID, new Game(gameID, gameName));
     }
-    private static class Game{
-        @SuppressWarnings("unused")
-        String gameID;
-        @SuppressWarnings("unused")
-        String gameName;
+    @Override
+    public List<Game> getAllGames() {
+        return new ArrayList<>(games.values());
+    }
+    @Override
+    public Game getGame(String gameID){
+        return games.get(gameID);
+    }
+    public static class Game{
+        public String gameID;
+        public String gameName;
+        public String whiteUsername;
+        public String blackUsername;
 
         Game(String gameID, String gameName) {
             this.gameID = gameID;
             this.gameName = gameName;
+            this.whiteUsername = null;
+            this.blackUsername = null;
         }
 
     }

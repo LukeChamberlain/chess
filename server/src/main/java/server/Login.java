@@ -32,6 +32,8 @@ public class Login{
 
             String authToken = generateToken();
             validTokens.add(authToken);
+            ((UserMemoryStorage) userStorage).addToken(authToken, user.getUsernameFromToken());
+
 
             response.status(200);
             response.type("application/json");
@@ -48,6 +50,9 @@ public class Login{
     private static class User {
         String username;
         String password;
+        public String getUsernameFromToken() {
+            return this.username;
+        }
     }
     private static class AuthResponse {
         @SuppressWarnings("unused")

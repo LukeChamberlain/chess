@@ -8,9 +8,11 @@ import java.util.*;
 
 public class Logout{
     public static Gson gson = new Gson();
+    @SuppressWarnings("unused")
     private final UserStorage userStorage;
     public static Set<String> validTokens;
 
+    @SuppressWarnings("static-access")
     public Logout(UserStorage storage, Set<String> validTokens) {
         this.userStorage = storage;
         this.validTokens = validTokens;

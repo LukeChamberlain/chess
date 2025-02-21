@@ -12,6 +12,7 @@ public class CreateGame{
     private final GameStorage gameStorage;
     public static Set<String> validTokens;
 
+    @SuppressWarnings("static-access")
     public CreateGame(GameStorage storage, Set<String> validTokens) {
         this.gameStorage = storage;
         this.validTokens = validTokens;

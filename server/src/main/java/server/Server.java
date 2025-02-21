@@ -4,19 +4,19 @@ import spark.*;
 import com.google.gson.Gson;
 import dataaccess.*;
 import java.util.*;
-
 public class Server {
     public static Set<String> tokens = new HashSet<>();
     public static Gson gson = new Gson();
     public static void main(String[] args) {
         Server server = new Server();
-        var port = server.run(8080);
+        var port = server.run(4567);
         System.out.println("Server started on port " + port);
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
+
 
         UserStorage userStorage = new UserMemoryStorage();
         Spark.post("/user", (request, response) -> new UserReg(userStorage).register(request, response));
@@ -25,6 +25,8 @@ public class Server {
 
         GameStorage gameStorage = new GameMemoryStorage();
         Spark.post("/game", (request, response) -> new CreateGame(gameStorage, tokens).create(request, response));
+        Spark.get("/game", (request, response) -> new ListGames(gameStorage, tokens).list(request, response));
+        Spark.put("/game", (request, response) -> new JoinGame(gameStorage, tokens, userStorage).join(request, response));
         Spark.delete("/db", (request, response) -> {
             new Clear(userStorage, gameStorage, tokens).clearAll();
             response.status(200);
