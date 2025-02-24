@@ -1,6 +1,7 @@
 package chess;
 import java.util.*;
-import chess.calculateMoves.*;
+
+import chess.moves.*;
 
 
 /**

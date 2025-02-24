@@ -1,4 +1,4 @@
-package chess.calculateMoves;
+package chess.moves;
 
 import chess.ChessBoard;
 import chess.ChessGame;
