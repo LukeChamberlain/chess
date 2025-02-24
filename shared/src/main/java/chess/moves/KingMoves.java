@@ -13,18 +13,18 @@ public class KingMoves {
         int row = position.getRow();
         int col = position.getColumn();
 
-        addMoveForKing(board, position, new ChessPosition(row - 1, col - 1), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row - 1, col), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row - 1, col + 1), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row, col + 1), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row + 1, col + 1), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row + 1, col), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row + 1, col - 1), color, possibleMoves);
-        addMoveForKing(board, position, new ChessPosition(row, col - 1), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row - 1, col - 1), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row - 1, col), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row - 1, col + 1), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row, col + 1), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row + 1, col + 1), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row + 1, col), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row + 1, col - 1), color, possibleMoves);
+        addMoveSpecial(board, position, new ChessPosition(row, col - 1), color, possibleMoves);
         return possibleMoves;
     }
 
-        private static void addMoveForKing(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves) {
+        public static void addMoveSpecial(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves) {
             if (endPosition.getRow() >= 1 && endPosition.getRow() <= 8 && endPosition.getColumn() >= 1 && endPosition.getColumn() <= 8) {
                 ChessPiece piece = board.getPiece(endPosition);
                 if (piece == null || piece.getTeamColor() != color) {

@@ -143,11 +143,10 @@ public class ChessGame {
 
         TeamColor opponentColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         for (int row = 1; row <= 8; row++){
-            for (int col= 1; col <= 8; col++){
+            for (int col = 1; col <= 8; col++){
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                 if(piece != null && piece.getTeamColor() == opponentColor){
-                    Collection<ChessMove> moves = piece.pieceMoves(board, new ChessPosition(row, col));
-                    for(ChessMove move: moves){
+                    for(ChessMove move: piece.pieceMoves(board, new ChessPosition(row, col))){
                         if(move.getEndPosition().equals(kingPosition)){
                             return true;
                         }
@@ -167,7 +166,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)){
             return false;
         }
-        return !validMoves(teamColor);
+        return validMoves(teamColor);
     }
 
     /**
@@ -182,7 +181,7 @@ public class ChessGame {
         if (isInCheck(teamColor)){
             return false;
         }
-        return !validMoves(teamColor);
+        return validMoves(teamColor);
     }
 
     public boolean validMoves(TeamColor teamColor){
