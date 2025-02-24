@@ -33,16 +33,16 @@ public class JoinGame{
                 return gson.toJson(Map.of("message", "Error: game not found"));
             }
 
-            if (joinGameRequest.playerColor.equals("WHITE")){
+            if ("WHITE".equals(joinGameRequest.playerColor)) {
                 if (game.whiteUsername != null) {
                     response.status(403);
-                game.whiteUsername = userStorage.getUsernameFromToken(authToken);
+                    return gson.toJson(Map.of("message", "Error: already taken"));
                 }
                 game.whiteUsername = userStorage.getUsernameFromToken(authToken);
-            } else if (joinGameRequest.playerColor.equals("BLACK")){
+            } else if ("BLACK".equals(joinGameRequest.playerColor)){
                 if (game.blackUsername != null) {
                     response.status(403);
-                game.blackUsername = userStorage.getUsernameFromToken(authToken);
+                    return gson.toJson(Map.of("message", "Error: already taken"));
                 }
                 game.blackUsername = userStorage.getUsernameFromToken(authToken);
             } else {

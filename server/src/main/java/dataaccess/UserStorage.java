@@ -6,4 +6,5 @@ public interface UserStorage {
     String getPassword(String username);
     void clearAllUsers();
     String getUsernameFromToken(String token);
+    void addToken(String token, String username);
 }

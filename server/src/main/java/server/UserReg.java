@@ -31,6 +31,7 @@ public class UserReg{
 
                 String authToken = generateToken();
                 Server.tokens.add(authToken);
+                userStorage.addToken(authToken, user.username);
 
                 response.status(200);
                 response.type("application/json");
