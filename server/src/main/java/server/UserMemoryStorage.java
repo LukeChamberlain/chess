@@ -15,11 +15,6 @@ public class UserMemoryStorage implements UserStorage {
         users.put(username, new User(username, password, email));
         return true;
     }
-
-    @Override
-    public boolean userExists(String username) {
-        return users.containsKey(username);
-    }
     
     @Override
     public String getPassword(String username) {
