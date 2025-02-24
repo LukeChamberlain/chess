@@ -167,19 +167,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)){
             return false;
         }
-        for (int row = 1; row <= 8; row++){
-            for (int col= 1; col <= 8; col++){
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if (piece != null && piece.getTeamColor() == teamColor){
-                    Collection<ChessMove> validMoves = validMoves(position);
-                    if (validMoves != null && !validMoves.isEmpty()){
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return !validMoves(teamColor);
     }
 
     /**
@@ -194,6 +182,10 @@ public class ChessGame {
         if (isInCheck(teamColor)){
             return false;
         }
+        return !validMoves(teamColor);
+    }
+
+    public boolean validMoves(TeamColor teamColor){
         for (int row = 1; row <= 8; row++){
             for (int col= 1; col <= 8; col++){
                 ChessPosition position = new ChessPosition(row, col);
@@ -208,7 +200,6 @@ public class ChessGame {
         }
         return true;
     }
-
 
     /**
      * Gets the current chessboard
