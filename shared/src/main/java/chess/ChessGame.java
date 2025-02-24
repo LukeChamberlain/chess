@@ -82,10 +82,16 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPiece piece = board.getPiece(start);
 
-        if (piece == null) throw new InvalidMoveException("No piece at start position");
-        if (piece.getTeamColor() != currentTurn) throw new InvalidMoveException("Not the current team's turn");
+        if (piece == null){
+            throw new InvalidMoveException("No piece at start position");
+        }
+        if (piece.getTeamColor() != currentTurn){
+            throw new InvalidMoveException("Not the current team's turn");
+        }
         Collection<ChessMove> valid = validMoves(start);
-        if (valid == null || !valid.contains(move)) throw new InvalidMoveException("Invalid move");
+        if (valid == null || !valid.contains(move)){
+            throw new InvalidMoveException("Invalid move");
+        }
 
         applyMoveToBoard(move, board);
         currentTurn = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
