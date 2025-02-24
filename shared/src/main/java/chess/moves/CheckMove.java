@@ -51,14 +51,16 @@ public class CheckMove {
             if (addMove(board, position, newPosition, color, possibleMoves)) break;
         }
     }
-    static void downAndRight(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, int row, int col, HashSet<ChessMove> possibleMoves) {
+    static void downAndRight(ChessBoard board, ChessPosition position, ChessGame.TeamColor 
+    color, int row, int col, HashSet<ChessMove> possibleMoves) {
         for (int r = row +1, c = col + 1; r <= 8 && c <= 8; r++, c++){
             ChessPosition newPosition = new ChessPosition(r, c);
             if (addMove(board, position, newPosition, color, possibleMoves)) break;
         }
     }
 
-    private static boolean addMove(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves) {
+    private static boolean addMove(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, 
+    ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves) {
         ChessPiece piece = board.getPiece(endPosition);
         if (piece == null){
             possibleMoves.add(new ChessMove(startPosition, endPosition, null));

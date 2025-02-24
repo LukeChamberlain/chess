@@ -16,7 +16,8 @@ public class PawnMoves {
 
 
 
-        if ((color == ChessGame.TeamColor.WHITE && row == 2) || (color == ChessGame.TeamColor.BLACK && row == 7) && board.getPiece(new ChessPosition(row + 1 * direction, col)) == null) {
+        if ((color == ChessGame.TeamColor.WHITE && row == 2) || (color == ChessGame.TeamColor.BLACK && row == 7) 
+        && board.getPiece(new ChessPosition(row + 1 * direction, col)) == null) {
             addMoveForPawn(board, position, new ChessPosition(row + 2 * direction, col), color, possibleMoves, false);
         }
 
@@ -27,7 +28,8 @@ public class PawnMoves {
         return possibleMoves;
     }
 
-        private static void addMoveForPawn(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves, boolean capture) {
+        private static void addMoveForPawn(ChessBoard board, ChessPosition startPosition, 
+        ChessPosition endPosition, ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves, boolean capture) {
             if (endPosition.getRow() >= 1 && endPosition.getRow() <= 8 && endPosition.getColumn() >= 1 && endPosition.getColumn() <= 8) {
                 ChessPiece piece = board.getPiece(endPosition);
                 if (capture) {

@@ -19,7 +19,8 @@ public class UserReg{
             try{
                 User user = new Gson().fromJson(request.body(), User.class);
 
-                if (user.username == null || user.password == null || user.email == null || user.username.isEmpty() || user.password.isEmpty() || user.email.isEmpty()) {
+                if (user.username == null || user.password == null || user.email == null || 
+                user.username.isEmpty() || user.password.isEmpty() || user.email.isEmpty()) {
                     response.status(400);
                     return gson.toJson(Map.of("message", "Error: bad request"));
                 }

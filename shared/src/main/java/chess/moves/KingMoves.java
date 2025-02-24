@@ -24,7 +24,8 @@ public class KingMoves {
         return possibleMoves;
     }
 
-        public static void addMoveSpecial(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves) {
+        public static void addMoveSpecial(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition, 
+        ChessGame.TeamColor color, HashSet<ChessMove> possibleMoves) {
             if (endPosition.getRow() >= 1 && endPosition.getRow() <= 8 && endPosition.getColumn() >= 1 && endPosition.getColumn() <= 8) {
                 ChessPiece piece = board.getPiece(endPosition);
                 if (piece == null || piece.getTeamColor() != color) {
