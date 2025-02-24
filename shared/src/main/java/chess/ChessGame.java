@@ -135,6 +135,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = null;
+        
         for (int row = 1; row <= 8; row++){
             for (int col= 1; col <= 8; col++){
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
@@ -146,22 +147,33 @@ public class ChessGame {
         if (kingPosition == null){
             throw new RuntimeException("Error: King is not found check isInCheck Function in ChessGame.java");
         }
-
+        
         TeamColor opponentColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-        for (int row = 1; row <= 8; row++){
-            for (int col = 1; col <= 8; col++){
+
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if(piece != null && piece.getTeamColor() == opponentColor){
-                    for(ChessMove move: piece.pieceMoves(board, new ChessPosition(row, col))){
-                        if(move.getEndPosition().equals(kingPosition)){
-                            return true;
-                        }
+                if (piece != null && piece.getTeamColor() == opponentColor) {
+                    if (threat(piece, new ChessPosition(row, col), kingPosition, board)) {
+                        return true;
                     }
-                }            
+                }
             }
         }
         return false;
     }
+    
+    // Helper function to check if a piece threatens the king
+    private boolean threat(ChessPiece piece, ChessPosition piecePosition, ChessPosition kingPosition, ChessBoard board) {
+        for (ChessMove move : piece.pieceMoves(board, piecePosition)) {
+            if (move.getEndPosition().equals(kingPosition)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /**
      * Determines if the given team is in checkmate
      *
