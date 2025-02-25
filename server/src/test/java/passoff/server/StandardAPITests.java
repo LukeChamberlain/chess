@@ -13,16 +13,16 @@ import java.util.Locale;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StandardAPITests {
 
-    private static TestUser existingUser;
+    public static TestUser existingUser;
 
-    private static TestUser newUser;
+    public static TestUser newUser;
 
-    private static TestCreateRequest createRequest;
+    public static TestCreateRequest createRequest;
 
-    private static TestServerFacade serverFacade;
-    private static Server server;
+    public static TestServerFacade serverFacade;
+    public static Server server;
 
-    private String existingAuth;
+    public String existingAuth;
 
     @AfterAll
     static void stopServer() {
@@ -446,7 +446,7 @@ public class StandardAPITests {
         assertHttpOk(result);
     }
 
-    private void assertHttpOk(TestResult result) {
+    public void assertHttpOk(TestResult result) {
         Assertions.assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode(),
                 "Server response code was not 200 OK (message: %s)".formatted(result.getMessage()));
         Assertions.assertFalse(result.getMessage() != null &&
@@ -454,19 +454,19 @@ public class StandardAPITests {
                 "Result returned an error message");
     }
 
-    private void assertHttpBadRequest(TestResult result) {
+    public void assertHttpBadRequest(TestResult result) {
         assertHttpError(result, HttpURLConnection.HTTP_BAD_REQUEST, "Bad Request");
     }
 
-    private void assertHttpUnauthorized(TestResult result) {
+    public void assertHttpUnauthorized(TestResult result) {
         assertHttpError(result, HttpURLConnection.HTTP_UNAUTHORIZED, "Unauthorized");
     }
 
-    private void assertHttpForbidden(TestResult result) {
+    public void assertHttpForbidden(TestResult result) {
         assertHttpError(result, HttpURLConnection.HTTP_FORBIDDEN, "Forbidden");
     }
 
-    private void assertHttpError(TestResult result, int statusCode, String message) {
+    public void assertHttpError(TestResult result, int statusCode, String message) {
         Assertions.assertEquals(statusCode, serverFacade.getStatusCode(),
                 "Server response code was not %d %s (message: %s)".formatted(statusCode, message, result.getMessage()));
         Assertions.assertNotNull(result.getMessage(), "Invalid Request didn't return an error message");
@@ -474,7 +474,7 @@ public class StandardAPITests {
                 "Error message didn't contain the word \"Error\"");
     }
 
-    private void assertAuthFieldsMissing(TestAuthResult result) {
+    public void assertAuthFieldsMissing(TestAuthResult result) {
         Assertions.assertNull(result.getUsername(), "Response incorrectly returned username");
         Assertions.assertNull(result.getAuthToken(), "Response incorrectly return authentication String");
     }
