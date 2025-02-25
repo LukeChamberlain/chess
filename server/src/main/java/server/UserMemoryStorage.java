@@ -1,7 +1,7 @@
 package server;
 import java.util.*;
 
-import dataaccess.UserStorage; 
+import dataaccess.UserStorage;
 
 public class UserMemoryStorage implements UserStorage {
     private final Map<String, User> users = new HashMap<>();
@@ -23,6 +23,11 @@ public class UserMemoryStorage implements UserStorage {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
+    }
+
+    @Override
     public void clearAllUsers() {
         users.clear();
     }
@@ -38,7 +43,7 @@ public class UserMemoryStorage implements UserStorage {
         System.out.println("Token added: " + token + " for username: " + username);
     }
 
-    private static class User {
+    public static class User {
         @SuppressWarnings("unused")
         String username;
         String password;
