@@ -1,6 +1,5 @@
 package dataaccess;
 
-import dataaccess.exception.ResponseException;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import server.GameStorage;
@@ -8,26 +7,27 @@ import server.GameMemoryStorage;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import dataaccess.DataAccessException;
 
 public class MySQLGameStorage implements GameStorage {
 
-    public MySQLGameStorage() throws ResponseException {
+    public MySQLGameStorage() throws DataAccessException{
         configureDatabase();
     }
 
     @Override
-    public void clearAllGames() throws ResponseException {
+    public void clearAllGames() throws DataAccessException {
         executeUpdate("TRUNCATE game");
     }
 
     @Override
-    public void addGame(String gameID, String gameName) throws ResponseException {
+    public void addGame(String gameID, String gameName) throws DataAccessException {
         var sql = "INSERT INTO game (id, name) VALUES (?, ?)";
         executeUpdate(sql, gameID, gameName);
     }
 
     @Override
-    public List<GameMemoryStorage.Game> getAllGames() throws ResponseException {
+    public List<GameMemoryStorage.Game> getAllGames() throws DataAccessException {
         var games = new ArrayList<GameMemoryStorage.Game>();
         try (var conn = DatabaseManager.getConnection()) {
             var sql = "SELECT id, name, white_username, black_username FROM game";
@@ -50,7 +50,7 @@ public class MySQLGameStorage implements GameStorage {
     }
 
     @Override
-    public GameMemoryStorage.Game getGame(String gameID) throws ResponseException {
+    public GameMemoryStorage.Game getGame(String gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var sql = "SELECT id, name, white_username, black_username FROM game WHERE id=?";
             try (var ps = conn.prepareStatement(sql)) {
@@ -73,34 +73,34 @@ public class MySQLGameStorage implements GameStorage {
     }
 
     private final String[] createStatements = {
-        """
-        CREATE TABLE IF NOT EXISTS  pet (
-          `id` int NOT NULL AUTO_INCREMENT,
-          `name` varchar(256) NOT NULL,
-          `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-          `json` TEXT DEFAULT NULL,
-          PRIMARY KEY (`id`),
-          INDEX(type),
-          INDEX(name)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-        """
-};
+            """
+            CREATE TABLE IF NOT EXISTS  pet (
+              `id` int NOT NULL AUTO_INCREMENT,
+              `name` varchar(256) NOT NULL,
+              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
+              `json` TEXT DEFAULT NULL,
+              PRIMARY KEY (`id`),
+              INDEX(type),
+              INDEX(name)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
 
 
-private void configureDatabase() throws ResponseException {
-    DatabaseManager.createDatabase();
-    try (var conn = DatabaseManager.getConnection()) {
-        for (var statement : createStatements) {
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
+    private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
             }
+        } catch (SQLException ex) {
+            throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
         }
-    } catch (SQLException ex) {
-        throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
     }
-}
 
-    private void executeBatch(String[] sqlStatements) throws ResponseException {
+    private void executeBatch(String[] sqlStatements) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             for (var sql : sqlStatements) {
                 try (var ps = conn.prepareStatement(sql)) {
@@ -112,7 +112,7 @@ private void configureDatabase() throws ResponseException {
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws ResponseException {
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
@@ -132,7 +132,7 @@ private void configureDatabase() throws ResponseException {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

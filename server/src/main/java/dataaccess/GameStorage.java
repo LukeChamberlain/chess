@@ -4,8 +4,8 @@ import java.util.*;
 import server.GameMemoryStorage;
 
 public interface GameStorage {
-    void clearAllGames();
-    void addGame(String gameID, String gameName);
-    List<server.GameMemoryStorage.Game> getAllGames();
-    GameMemoryStorage.Game getGame(String gameID);
+    void clearAllGames() throws DataAccessException;
+    void addGame(String gameID, String gameName) throws DataAccessException;
+    List<server.GameMemoryStorage.Game> getAllGames() throws DataAccessException;
+    GameMemoryStorage.Game getGame(String gameID) throws DataAccessException;
 }
