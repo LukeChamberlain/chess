@@ -18,10 +18,11 @@ public class Clear {
         this.validTokens = validTokens;
     }
 
-    public Object clearAll(Request request, Response response) throws DataAccessException { // Add throws
-        userStorage.clearAllUsers(); // Now allowed to throw
+    public Object clearAll(Request request, Response response) throws DataAccessException {
+        userStorage.clearAllUsers();
         gameStorage.clearAllGames();
         validTokens.clear();
+
         response.status(200);
         response.type("application/json");
         return "{}";

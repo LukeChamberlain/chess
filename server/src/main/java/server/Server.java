@@ -19,6 +19,9 @@ public class Server {
 
         try {
             DatabaseManager.createDatabase();
+            UserStorage userStorage = new SQLUserStorage();
+            List<String> tokensFromDB = userStorage.getAllTokens(); 
+            Server.tokens.addAll(tokensFromDB);
         } catch (DataAccessException e) {
             throw new RuntimeException("Database initialization failed: " + e.getMessage());
         }
@@ -28,7 +31,7 @@ public class Server {
         Spark.post("/session", (request, response) -> new Login(userStorage, tokens).login(request, response));
         Spark.delete("/session", (request, response) -> new Logout(userStorage, tokens).logout(request, response));
 
-        GameStorage gameStorage = new GameMemoryStorage();
+        GameStorage gameStorage = new SQLGameStorage();
         Spark.post("/game", (request, response) -> new CreateGame(gameStorage, tokens).create(request, response));
         Spark.get("/game", (request, response) -> new ListGames(gameStorage, tokens).list(request, response));
         Spark.put("/game", (request, response) -> new JoinGame(gameStorage, tokens, userStorage).join(request, response));

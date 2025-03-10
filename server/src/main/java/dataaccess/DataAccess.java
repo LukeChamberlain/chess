@@ -1,15 +1,14 @@
 package dataaccess;
 
 import java.util.List;
-import server.GameMemoryStorage;
 
 public interface DataAccess extends GameStorage, UserStorage {
     
     public interface GameStorage {
         void clearAllGames() throws DataAccessException;
         void addGame(String gameID, String gameName) throws DataAccessException;
-        List<server.GameMemoryStorage.Game> getAllGames() throws DataAccessException;
-        GameMemoryStorage.Game getGame(String gameID) throws DataAccessException;
+        List<Game> getAllGames() throws DataAccessException;
+        Game getGame(String gameID) throws DataAccessException;
     }
 
     public interface UserStorage {

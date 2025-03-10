@@ -51,9 +51,16 @@ public class DatabaseManager {
                  var createTokensTable = setCatalogConn.prepareStatement(
                          "CREATE TABLE IF NOT EXISTS tokens (" +
                                  "token VARCHAR(255) PRIMARY KEY," +
-                                 "username VARCHAR(255) NOT NULL)")) {
+                                 "username VARCHAR(255) NOT NULL)");
+                 var createGamesTable = setCatalogConn.prepareStatement(
+                         "CREATE TABLE IF NOT EXISTS games (" +
+                                 "gameID VARCHAR(255) PRIMARY KEY," +
+                                 "gameName VARCHAR(255) NOT NULL," +
+                                 "whiteUsername VARCHAR(255)," +
+                                 "blackUsername VARCHAR(255))")) {
                 createUsersTable.executeUpdate();
                 createTokensTable.executeUpdate();
+                createGamesTable.executeUpdate(); // Add games table
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

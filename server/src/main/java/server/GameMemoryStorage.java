@@ -1,7 +1,8 @@
 package server;
 
 import java.util.*;
-
+import dataaccess.DataAccessException;
+import dataaccess.Game;
 import dataaccess.GameStorage;
 
 public class GameMemoryStorage implements GameStorage {
@@ -12,8 +13,8 @@ public class GameMemoryStorage implements GameStorage {
         games.clear();
     }
     @Override
-    public void addGame(String gameID, String gameName) {
-        games.put(gameID, new Game(gameID, null, null, gameName));
+    public void addGame(String gameID, String gameName) throws DataAccessException {
+        games.put(gameID, new Game(gameID, gameName));
     }
     @Override
     public List<Game> getAllGames() {
@@ -30,26 +31,5 @@ public class GameMemoryStorage implements GameStorage {
             game.whiteUsername = whiteUsername;
             game.blackUsername = blackUsername;
         }
-    }
-    public static class Game{
-        public String gameID;
-        public String gameName;
-        public String whiteUsername;
-        public String blackUsername;
-
-        public Game(String gameID, String gameName) {
-            this.gameID = gameID;
-            this.gameName = gameName;
-            this.whiteUsername = null;
-            this.blackUsername = null;
-        }
-
-        public Game(String gameID, String whiteUsername, String blackUsername, String gameName) {
-            this.gameID = gameID;
-            this.whiteUsername = whiteUsername;
-            this.blackUsername = blackUsername;
-            this.gameName = gameName;
-        }
-
     }
 }

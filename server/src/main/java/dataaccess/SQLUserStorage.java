@@ -32,21 +32,35 @@ public class SQLUserStorage implements UserStorage {
             return false; // User already exists or SQL issue
         }
     }
+    
+    @Override
+    public List<String> getAllTokens() throws DataAccessException {
+        List<String> tokens = new ArrayList<>();
+        String query = "SELECT token FROM tokens";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                tokens.add(rs.getString("token"));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to load tokens: " + e.getMessage());
+        }
+        return tokens;
+    }
 
     @Override
     public String getPassword(String username) {
         String query = "SELECT password FROM users WHERE username = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("password");
-            }
+            return rs.next() ? rs.getString("password") : null; // Return null if user not found
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         }
-        return null; // User not found
     }
 
     @Override

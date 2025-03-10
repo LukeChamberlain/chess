@@ -6,6 +6,8 @@ import dataaccess.UserStorage;
 import spark.*;
 import java.util.*;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class Login{
     public static Gson gson = new Gson();
     private final UserStorage userStorage;
@@ -24,16 +26,20 @@ public class Login{
                 response.status(400);
                 return gson.toJson(Map.of("message", "Error: bad request"));
             }
-            String password = userStorage.getPassword(user.username);
-            if (password == null || !password.equals(user.password)) {
+            String storedHash = userStorage.getPassword(user.username);
+            if (storedHash == null) {
+                response.status(401);
+                return gson.toJson(Map.of("message", "Error: unauthorized"));
+            }
+            if (!BCrypt.checkpw(user.password, storedHash)) {
                 response.status(401);
                 return gson.toJson(Map.of("message", "Error: unauthorized"));
             }
 
+            // Generate token and proceed
             String authToken = generateToken();
             validTokens.add(authToken);
             userStorage.addToken(authToken, user.username);
-
 
             response.status(200);
             response.type("application/json");

@@ -1,6 +1,7 @@
 package server;
 import java.util.*;
 
+import dataaccess.DataAccessException;
 import dataaccess.UserStorage;
 
 public class UserMemoryStorage implements UserStorage {
@@ -41,6 +42,11 @@ public class UserMemoryStorage implements UserStorage {
     public void addToken(String token, String username) {
         authTokens.put(token, username);
         System.out.println("Token added: " + token + " for username: " + username);
+    }
+
+    @Override
+    public List<String> getAllTokens() throws DataAccessException {
+        return new ArrayList<>(authTokens.keySet()); // Return all stored tokens
     }
 
     public static class User {

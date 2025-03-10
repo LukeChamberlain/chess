@@ -5,7 +5,7 @@ import dataaccess.*;
 import spark.*;
 import java.util.*;
 
-public class JoinGame{
+public class JoinGame {
     public static Gson gson = new Gson();
     private final GameStorage gameStorage;
     private final Set<String> validTokens;
@@ -18,49 +18,63 @@ public class JoinGame{
     }
 
     public String join(Request request, Response response) {
-        try{
-            JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
-            
-            String authToken  = request.headers("Authorization");
-            if (authToken == null || !validTokens.contains(authToken) || authToken.isEmpty()) {
+        try {
+            // Validate authentication token
+            String authToken = request.headers("Authorization");
+            if (authToken == null || !validTokens.contains(authToken)) {
                 response.status(401);
-                return gson.toJson(Map.of("message", "Error: unauthorized"));
+                return "{\"message\": \"Error: unauthorized\"}";
             }
 
-            GameMemoryStorage.Game game = gameStorage.getGame(joinGameRequest.gameID);
+            // Get username from token
+            String username = userStorage.getUsernameFromToken(authToken);
+            if (username == null) {
+                response.status(401);
+                return "{\"message\": \"Error: unauthorized\"}";
+            }
+
+            JoinGameRequest joinRequest = gson.fromJson(request.body(), JoinGameRequest.class);
+            String gameID = joinRequest.gameID;
+            String playerColor = joinRequest.playerColor;
+
+            // Validate game exists
+            Game game = gameStorage.getGame(gameID);
             if (game == null) {
                 response.status(400);
-                return gson.toJson(Map.of("message", "Error: game not found"));
+                return "{\"message\": \"Error: bad request\"}";
             }
 
-            if ("WHITE".equals(joinGameRequest.playerColor)) {
-                if (game.whiteUsername != null) {
-                    response.status(403);
-                    return gson.toJson(Map.of("message", "Error: already taken"));
+            // Handle player color assignment
+            if (playerColor != null) {
+                playerColor = playerColor.toUpperCase();
+                if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
+                    response.status(400);
+                    return "{\"message\": \"Error: bad request\"}";
                 }
-                game.whiteUsername = userStorage.getUsernameFromToken(authToken);
-            } else if ("BLACK".equals(joinGameRequest.playerColor)){
-                if (game.blackUsername != null) {
+
+                // Check if color is already taken
+                if ((playerColor.equals("WHITE") && game.whiteUsername != null) ||
+                    (playerColor.equals("BLACK") && game.blackUsername != null)) {
                     response.status(403);
-                    return gson.toJson(Map.of("message", "Error: already taken"));
+                    return "{\"message\": \"Error: already taken\"}";
                 }
-                game.blackUsername = userStorage.getUsernameFromToken(authToken);
-            } else {
-                response.status(400);
-                return gson.toJson(Map.of("message", "Error: bad request"));
+
+                // Update game with new player
+                String newWhite = playerColor.equals("WHITE") ? username : game.whiteUsername;
+                String newBlack = playerColor.equals("BLACK") ? username : game.blackUsername;
+                gameStorage.updateGame(gameID, newWhite, newBlack);
             }
 
             response.status(200);
-            response.type("application/json");
-            return gson.toJson(Map.of("gameID", game.gameID));
-        } catch (Exception e) {
+            return "{}";
+        } catch (DataAccessException e) {
             response.status(500);
-            return gson.toJson(Map.of("message", e.getMessage()));
+            return "{\"message\": \"Internal server error\"}"; // Generic message for security
         }
     }
+
     private static class JoinGameRequest {
         String playerColor;
         String gameID;
     }
 }
-

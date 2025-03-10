@@ -9,4 +9,5 @@ public interface UserStorage {
     void clearAllUsers() throws DataAccessException;
     String getUsernameFromToken(String token) throws DataAccessException;
     void addToken(String token, String username) throws DataAccessException;
+    List<String> getAllTokens() throws DataAccessException;
 }
