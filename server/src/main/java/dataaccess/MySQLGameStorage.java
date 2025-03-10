@@ -2,12 +2,10 @@ package dataaccess;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
-import server.GameStorage;
 import server.GameMemoryStorage;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import dataaccess.DataAccessException;
 
 public class MySQLGameStorage implements GameStorage {
 
@@ -44,7 +42,7 @@ public class MySQLGameStorage implements GameStorage {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, "Failed to retrieve games: " + e.getMessage());
+            throw new DataAccessException("Failed to retrieve games: " + e.getMessage());
         }
         return games;
     }
@@ -68,7 +66,7 @@ public class MySQLGameStorage implements GameStorage {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, "Failed to retrieve game: " + e.getMessage());
+            throw new DataAccessException("Failed to retrieve game: " + e.getMessage());
         }
     }
 
@@ -96,43 +94,20 @@ public class MySQLGameStorage implements GameStorage {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 
-    private void executeBatch(String[] sqlStatements) throws DataAccessException {
+    private void executeUpdate(String sql, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            for (var sql : sqlStatements) {
-                try (var ps = conn.prepareStatement(sql)) {
-                    ps.executeUpdate();
-                }
-            }
-        } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, "Database configuration failed: " + e.getMessage());
-        }
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
+            try (var ps = conn.prepareStatement(sql)) {
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
                 }
                 ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
             }
-        } catch (SQLException e) {
-            throw new DataAccessException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException("Database update failed: " + e.getMessage());
         }
     }
 }

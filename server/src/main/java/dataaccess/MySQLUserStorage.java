@@ -32,7 +32,7 @@ public class MySQLUserStorage implements UserStorage {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException(500, "Failed to get password: " + e.getMessage());
+            throw new DataAccessException("Failed to get password: " + e.getMessage());
         }
     }
 
@@ -53,7 +53,7 @@ public class MySQLUserStorage implements UserStorage {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new DataAccessException(500, "Failed to retrieve users: " + e.getMessage());
+            throw new DataAccessException("Failed to retrieve users: " + e.getMessage());
         }
         return users;
     }
@@ -75,7 +75,7 @@ public class MySQLUserStorage implements UserStorage {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, "Failed to get username from token: " + e.getMessage());
+            throw new DataAccessException("Failed to get username from token: " + e.getMessage());
         }
     }
 
@@ -112,7 +112,7 @@ public class MySQLUserStorage implements UserStorage {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, "Database configuration failed: " + e.getMessage());
+            throw new DataAccessException("Database configuration failed: " + e.getMessage());
         }
     }
 
@@ -125,7 +125,7 @@ public class MySQLUserStorage implements UserStorage {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, "Database update failed: " + e.getMessage());
+            throw new DataAccessException("Database update failed: " + e.getMessage());
         }
     }
 }

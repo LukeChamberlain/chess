@@ -13,7 +13,7 @@ public class GameMemoryStorage implements GameStorage {
     }
     @Override
     public void addGame(String gameID, String gameName) {
-        games.put(gameID, new Game(gameID, gameName));
+        games.put(gameID, new Game(gameID, null, null, gameName));
     }
     @Override
     public List<Game> getAllGames() {
@@ -34,6 +34,13 @@ public class GameMemoryStorage implements GameStorage {
             this.gameName = gameName;
             this.whiteUsername = null;
             this.blackUsername = null;
+        }
+
+        Game(String gameID, String whiteUsername, String blackUsername, String gameName) {
+            this.gameID = gameID;
+            this.whiteUsername = whiteUsername;
+            this.blackUsername = blackUsername;
+            this.gameName = gameName;
         }
 
     }
