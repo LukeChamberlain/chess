@@ -6,6 +6,8 @@ import dataaccess.UserStorage;
 import spark.*;
 import java.util.*;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class UserReg{
     public static Gson gson = new Gson();
     private final UserStorage userStorage;
@@ -25,7 +27,9 @@ public class UserReg{
                     return gson.toJson(Map.of("message", "Error: bad request"));
                 }
 
-                if (!userStorage.addUser(user.username, user.password, user.email)) {
+                String hashedPassword = BCrypt.hashpw(user.password, BCrypt.gensalt());
+
+                if (!userStorage.addUser(user.username, hashedPassword, user.email)) {
                     response.status(403);
                     return gson.toJson(Map.of("message", "Error: already taken"));
                 }

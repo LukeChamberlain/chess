@@ -36,18 +36,29 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+    public static void createDatabase() throws DataAccessException {
         try {
-            var statement = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
+            try (var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME)) {
+                createDbStatement.executeUpdate();
+            }
+            try (var setCatalogConn = DriverManager.getConnection(CONNECTION_URL + "/" + DATABASE_NAME, USER, PASSWORD);
+                 var createUsersTable = setCatalogConn.prepareStatement(
+                         "CREATE TABLE IF NOT EXISTS users (" +
+                                 "username VARCHAR(255) PRIMARY KEY," +
+                                 "password VARCHAR(255) NOT NULL," +
+                                 "email VARCHAR(255) NOT NULL UNIQUE)");
+                 var createTokensTable = setCatalogConn.prepareStatement(
+                         "CREATE TABLE IF NOT EXISTS tokens (" +
+                                 "token VARCHAR(255) PRIMARY KEY," +
+                                 "username VARCHAR(255) NOT NULL)")) {
+                createUsersTable.executeUpdate();
+                createTokensTable.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
     }
-
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should

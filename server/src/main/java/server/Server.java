@@ -17,8 +17,13 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Database initialization failed: " + e.getMessage());
+        }
 
-        UserStorage userStorage = new UserMemoryStorage();
+        UserStorage userStorage = new SQLUserStorage();
         Spark.post("/user", (request, response) -> new UserReg(userStorage).register(request, response));
         Spark.post("/session", (request, response) -> new Login(userStorage, tokens).login(request, response));
         Spark.delete("/session", (request, response) -> new Logout(userStorage, tokens).logout(request, response));
