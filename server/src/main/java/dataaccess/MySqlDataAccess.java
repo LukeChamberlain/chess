@@ -1,9 +1,5 @@
 package dataaccess;
-
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.sql.*;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -58,20 +54,24 @@ public class MySqlDataAccess implements DataAccess{
     }
 
     @Override
-    public Collection<String> getAllUsers() throws DataAccessException {
-        List<String> users = new ArrayList<>();
+    public List<server.UserMemoryStorage.User> getAllUsers() throws DataAccessException {
+        List<server.UserMemoryStorage.User> users = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "SELECT username FROM user";
+            String sql = "SELECT username, password, email FROM user";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
-                    users.add(rs.getString("username"));
+                    users.add(new server.UserMemoryStorage.User(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email")
+                    ));
                 }
             }
-            return users;
         } catch (SQLException e) {
-            throw new DataAccessException("Error retrieving all users: " + e.getMessage());
+            throw new DataAccessException("Failed to retrieve users: " + e.getMessage());
         }
+        return users;
     }
 
     @Override
@@ -112,7 +112,7 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public List<GameMemoryStorage.Game> getAllGames() throws DataAccessException {
-        Collection<GameMemoryStorage.Game> games = new ArrayList<>();
+        List<GameMemoryStorage.Game> games = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
             String sql = "SELECT id, name, white_username, black_username FROM game";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
