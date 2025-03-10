@@ -1,33 +1,29 @@
 package server;
 
-import dataaccess.UserStorage;
-import java.util.*;
+import java.util.Set;
+import dataaccess.DataAccessException;
 import dataaccess.GameStorage;
+import dataaccess.UserStorage;
+import spark.Request;
+import spark.Response;
 
 public class Clear {
     private final UserStorage userStorage;
     private final GameStorage gameStorage;
-    private final Set<String> authTokens;
+    private final Set<String> validTokens;
 
-    public Clear(UserStorage userStorage, GameStorage gameStorage, Set<String> authTokens) {
+    public Clear(UserStorage userStorage, GameStorage gameStorage, Set<String> validTokens) {
         this.userStorage = userStorage;
         this.gameStorage = gameStorage;
-        this.authTokens = authTokens;
+        this.validTokens = validTokens;
     }
 
-    public void clearAll() {
-        clearAllUsers();
-        clearAllGames();
-        clearAllAuthTokens();
-    }
-
-    public void clearAllUsers() {
-        userStorage.clearAllUsers();
-    }
-    public void clearAllGames() {
+    public Object clearAll(Request request, Response response) throws DataAccessException { // Add throws
+        userStorage.clearAllUsers(); // Now allowed to throw
         gameStorage.clearAllGames();
-    }
-    public void clearAllAuthTokens() {
-        authTokens.clear();
+        validTokens.clear();
+        response.status(200);
+        response.type("application/json");
+        return "{}";
     }
 }

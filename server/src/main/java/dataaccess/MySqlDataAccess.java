@@ -7,6 +7,11 @@ import static java.sql.Types.NULL;
 import server.GameMemoryStorage;
 
 public class MySqlDataAccess implements DataAccess{
+    @Override
+    public void updateGame(String gameID, String whiteUsername, String blackUsername) throws DataAccessException {
+        String sql = "UPDATE game SET white_username = ?, black_username = ? WHERE id = ?";
+        executeUpdate(sql, whiteUsername, blackUsername, gameID);
+    }
 
     @Override
     public void clearAllGames() throws DataAccessException {

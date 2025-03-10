@@ -23,6 +23,14 @@ public class GameMemoryStorage implements GameStorage {
     public Game getGame(String gameID){
         return games.get(gameID);
     }
+    @Override
+    public void updateGame(String gameID, String whiteUsername, String blackUsername) {
+        Game game = games.get(gameID);
+        if (game != null) {
+            game.whiteUsername = whiteUsername;
+            game.blackUsername = blackUsername;
+        }
+    }
     public static class Game{
         public String gameID;
         public String gameName;
