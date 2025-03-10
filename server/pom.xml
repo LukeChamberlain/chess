@@ -24,7 +24,6 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
-
         <plugins>
             <!-- Plugin to run the main class -->
             <plugin>
