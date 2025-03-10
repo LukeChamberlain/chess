@@ -19,57 +19,63 @@ public class JoinGame {
 
     public String join(Request request, Response response) {
         try {
+            JoinGameRequest joinRequest = gson.fromJson(request.body(), JoinGameRequest.class);
+            
             // Validate authentication token
             String authToken = request.headers("Authorization");
             if (authToken == null || !validTokens.contains(authToken)) {
                 response.status(401);
-                return "{\"message\": \"Error: unauthorized\"}";
+                return gson.toJson(Map.of("message", "Error: unauthorized"));
             }
 
             // Get username from token
             String username = userStorage.getUsernameFromToken(authToken);
             if (username == null) {
                 response.status(401);
-                return "{\"message\": \"Error: unauthorized\"}";
+                return gson.toJson(Map.of("message", "Error: unauthorized"));
             }
 
-            JoinGameRequest joinRequest = gson.fromJson(request.body(), JoinGameRequest.class);
-            String gameID = joinRequest.gameID;
-            String playerColor = joinRequest.playerColor;
-
             // Validate game exists
+            String gameID = joinRequest.gameID;
             Game game = gameStorage.getGame(gameID);
             if (game == null) {
                 response.status(400);
-                return "{\"message\": \"Error: bad request\"}";
+                return gson.toJson(Map.of("message", "Error: game not found"));
             }
 
-            // Handle player color assignment
-            if (playerColor != null) {
-                playerColor = playerColor.toUpperCase();
-                if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
-                    response.status(400);
-                    return "{\"message\": \"Error: bad request\"}";
-                }
-
-                // Check if color is already taken
-                if ((playerColor.equals("WHITE") && game.whiteUsername != null) ||
-                    (playerColor.equals("BLACK") && game.blackUsername != null)) {
-                    response.status(403);
-                    return "{\"message\": \"Error: already taken\"}";
-                }
-
-                // Update game with new player
-                String newWhite = playerColor.equals("WHITE") ? username : game.whiteUsername;
-                String newBlack = playerColor.equals("BLACK") ? username : game.blackUsername;
-                gameStorage.updateGame(gameID, newWhite, newBlack);
+            // Extract and validate playerColor
+            String playerColor = joinRequest.playerColor;
+            if (playerColor == null || playerColor.isEmpty()) {
+                response.status(400);
+                return gson.toJson(Map.of("message", "Error: bad request"));
             }
+
+            playerColor = playerColor.toUpperCase();
+            if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
+                response.status(400);
+                return gson.toJson(Map.of("message", "Error: bad request"));
+            }
+
+            // Check if color is already taken
+            if ((playerColor.equals("WHITE") && game.whiteUsername != null) ||
+                (playerColor.equals("BLACK") && game.blackUsername != null)) {
+                response.status(403);
+                return gson.toJson(Map.of("message", "Error: already taken"));
+            }
+
+            // Update game with new player
+            if (playerColor.equals("WHITE")) {
+                game.whiteUsername = username;
+            } else {
+                game.blackUsername = username;
+            }
+            gameStorage.updateGame(gameID, game.whiteUsername, game.blackUsername);
 
             response.status(200);
-            return "{}";
-        } catch (DataAccessException e) {
+            return gson.toJson(Map.of("gameID", gameID));
+        } catch (Exception e) {
             response.status(500);
-            return "{\"message\": \"Internal server error\"}"; // Generic message for security
+            return gson.toJson(Map.of("message", "Internal server error"));
         }
     }
 

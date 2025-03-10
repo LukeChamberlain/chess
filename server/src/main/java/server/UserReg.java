@@ -6,7 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import spark.Request;
 import spark.Response;
 import java.util.Map;
-import java.util.Set;
+
 import java.util.UUID;
 
 public class UserReg {
@@ -20,7 +20,7 @@ public class UserReg {
     public String register(Request request, Response response) {
         try {
             User user = gson.fromJson(request.body(), User.class);
-
+            String hashedPassword = BCrypt.hashpw(user.password, BCrypt.gensalt());
             // Input validation
             if (user.username == null || user.password == null || user.email == null ||
                     user.username.isEmpty() || user.password.isEmpty() || user.email.isEmpty()) {
@@ -28,8 +28,6 @@ public class UserReg {
                 return gson.toJson(Map.of("message", "Error: bad request"));
             }
 
-            // Hash password FIRST
-            String hashedPassword = BCrypt.hashpw(user.password, BCrypt.gensalt());
 
             // Check if user already exists
             if (userStorage.getPassword(user.username) != null) {
