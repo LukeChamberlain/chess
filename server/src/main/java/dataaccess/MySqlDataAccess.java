@@ -13,71 +13,67 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 
-public class MySqlDataAccess implements DataAccess {
+public class MySqlDataAccess implements DataAccess, GameStorage, UserStorage {
 
-    public MySqlDataAccess() throws ResponseException {
+    public MySqlDataAccess() throws DataAccessException {
         configureDatabase();
-    }
-
-    public Pet addPet(Pet pet) throws ResponseException {
-        var statement = "INSERT INTO pet (name, type, json) VALUES (?, ?, ?)";
-        var json = new Gson().toJson(pet);
-        var id = executeUpdate(statement, pet.name(), pet.type(), json);
-        return new Pet(id, pet.name(), pet.type());
-    }
-
-    public Pet getPet(int id) throws ResponseException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM pet WHERE id=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, id);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return readPet(rs);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        @Override
+        public String getGame(String gameId) throws DataAccessException {
+            // Implement the method to get a game by ID
+            return null;
         }
-        return null;
-    }
-
-    public Collection<Pet> listPets() throws ResponseException {
-        var result = new ArrayList<Pet>();
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM pet";
-            try (var ps = conn.prepareStatement(statement)) {
-                try (var rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        result.add(readPet(rs));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+    
+        @Override
+        public Collection<String> getAllGames() throws DataAccessException {
+            // Implement the method to get all games
+            return null;
         }
-        return result;
+    
+        @Override
+        public String getPassword(String username) throws DataAccessException {
+            // Implement the method to get a password by username
+            return null;
+        }
+    
+        @Override
+        public void clearAllGames() throws DataAccessException {
+            // Implement the method to clear all games
+        }
+    
+        @Override
+        public void addToken(String username, String token) throws DataAccessException {
+            // Implement the method to add a token
+        }
+    
+        @Override
+        public void addGame(String gameId, String gameData) throws DataAccessException {
+            // Implement the method to add a game
+        }
+    
+        @Override
+        public void addUser(String username, String password, String email) throws DataAccessException {
+            // Implement the method to add a user
+        }
+    
+        @Override
+        public String getUsernameFromToken(String token) throws DataAccessException {
+            // Implement the method to get a username from a token
+            return null;
+        }
+    
+        @Override
+        public Collection<String> getAllUsers() throws DataAccessException {
+            // Implement the method to get all users
+            return null;
+        }
+    
+        @Override
+        public void clearAllUsers() throws DataAccessException {
+            // Implement the method to clear all users
+        }
     }
 
-    public void deletePet(Integer id) throws ResponseException {
-        var statement = "DELETE FROM pet WHERE id=?";
-        executeUpdate(statement, id);
-    }
-
-    public void deleteAllPets() throws ResponseException {
-        var statement = "TRUNCATE pet";
-        executeUpdate(statement);
-    }
-
-    private Pet readPet(ResultSet rs) throws SQLException {
-        var id = rs.getInt("id");
-        var json = rs.getString("json");
-        var pet = new Gson().fromJson(json, Pet.class);
-        return pet.setId(id);
-    }
-
-    private int executeUpdate(String statement, Object... params) throws ResponseException {
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
@@ -116,7 +112,7 @@ public class MySqlDataAccess implements DataAccess {
     };
 
 
-    private void configureDatabase() throws ResponseException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
