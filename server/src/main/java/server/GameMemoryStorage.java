@@ -29,14 +29,14 @@ public class GameMemoryStorage implements GameStorage {
         public String whiteUsername;
         public String blackUsername;
 
-        Game(String gameID, String gameName) {
+        public Game(String gameID, String gameName) {
             this.gameID = gameID;
             this.gameName = gameName;
             this.whiteUsername = null;
             this.blackUsername = null;
         }
 
-        Game(String gameID, String whiteUsername, String blackUsername, String gameName) {
+        public Game(String gameID, String whiteUsername, String blackUsername, String gameName) {
             this.gameID = gameID;
             this.whiteUsername = whiteUsername;
             this.blackUsername = blackUsername;

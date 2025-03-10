@@ -44,12 +44,11 @@ public class UserMemoryStorage implements UserStorage {
     }
 
     public static class User {
-        @SuppressWarnings("unused")
         String username;
         String password;
         String email;
 
-        User(String username, String password, String email) {
+        public User(String username, String password, String email) {
             this.username = username;
             this.password = password;
             this.email = email;
