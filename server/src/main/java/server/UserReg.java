@@ -37,7 +37,6 @@ public class UserReg {
                 return gson.toJson(Map.of("message", "Error: already taken"));
             }
 
-            // Add user with hashed password
             if (!userStorage.addUser(user.username, hashedPassword, user.email)) {
                 response.status(403);
                 return gson.toJson(Map.of("message", "Error: already taken"));

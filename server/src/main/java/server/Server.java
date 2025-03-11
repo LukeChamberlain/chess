@@ -36,7 +36,7 @@ public class Server {
         Spark.get("/game", (request, response) -> new ListGames(gameStorage, tokens).list(request, response));
         Spark.put("/game", (request, response) -> new JoinGame(gameStorage, tokens, userStorage).join(request, response));
         Spark.delete("/db", (request, response) -> {
-            new Clear(userStorage, gameStorage, tokens).clearAll(request, response);
+            new Clear(userStorage, gameStorage, tokens).clearAll();
             response.status(200);
             response.type("application/json");
             return gson.toJson(Map.of("message", "Database cleared"));
