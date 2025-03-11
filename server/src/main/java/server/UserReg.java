@@ -27,8 +27,10 @@ public class UserReg {
                 response.status(400);
                 return gson.toJson(Map.of("message", "Error: bad request"));
             }
-
-
+            if (user.username.equals(user.password) || user.email.equals(user.password)) {
+                response.status(400);
+                return gson.toJson(Map.of("message", "Error: username/email cannot match password"));
+            }
             // Check if user already exists
             if (userStorage.getPassword(user.username) != null) {
                 response.status(403);

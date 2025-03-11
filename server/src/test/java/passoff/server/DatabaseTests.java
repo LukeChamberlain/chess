@@ -112,6 +112,7 @@ public class DatabaseTests {
             while (rs.next()) {
                 for (int i = 1; i <= columns; i++) {
                     String value = rs.getString(i);
+                    System.out.println("Table: " + table + ", Column: " + rsmd.getColumnName(i) + ", Value: " + value);
                     Assertions.assertFalse(value.contains(TEST_USER.getPassword()),
                             "Found clear text password in database");
                 }
