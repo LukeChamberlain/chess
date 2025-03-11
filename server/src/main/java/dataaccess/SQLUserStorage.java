@@ -6,9 +6,6 @@ import java.util.List;
 import server.UserMemoryStorage.User;
 
 public class SQLUserStorage implements UserStorage {
-    private final String url = "jdbc:mysql://localhost:3306/chess";
-    private final String user = "root";
-    private final String password = "LukeMySQL25";
 
     public SQLUserStorage() {
         try {
@@ -19,9 +16,9 @@ public class SQLUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean addUser(String username, String password, String email) {
+    public boolean addUser(String username, String password, String email) throws DataAccessException {
         String query = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(url, user, this.password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
@@ -29,7 +26,7 @@ public class SQLUserStorage implements UserStorage {
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            return false; // User already exists or SQL issue
+            return false;
         }
     }
     
