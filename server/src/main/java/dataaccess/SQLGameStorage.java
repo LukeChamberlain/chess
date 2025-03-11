@@ -20,7 +20,7 @@ public class SQLGameStorage implements GameStorage {
     @Override
     public void updateGame(String gameID, String whiteUsername, String blackUsername) throws DataAccessException {
         String query = "UPDATE games SET whiteUsername = ?, blackUsername = ? WHERE gameID = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, whiteUsername);
             stmt.setString(2, blackUsername);
@@ -34,7 +34,7 @@ public class SQLGameStorage implements GameStorage {
     @Override
     public void clearAllGames() throws DataAccessException {
         String query = "DELETE FROM games";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -45,7 +45,7 @@ public class SQLGameStorage implements GameStorage {
     @Override
     public void addGame(String gameID, String gameName) throws DataAccessException {
         String query = "INSERT INTO games (gameID, gameName) VALUES (?, ?)";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, gameID);
             stmt.setString(2, gameName);
@@ -59,7 +59,7 @@ public class SQLGameStorage implements GameStorage {
     public List<Game> getAllGames() throws DataAccessException {
         List<Game> games = new ArrayList<>();
         String query = "SELECT * FROM games";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -77,7 +77,7 @@ public class SQLGameStorage implements GameStorage {
     @Override
     public Game getGame(String gameID) throws DataAccessException {
         String query = "SELECT * FROM games WHERE gameID = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, gameID);
             ResultSet rs = stmt.executeQuery();

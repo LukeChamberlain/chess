@@ -37,7 +37,7 @@ public class SQLUserStorage implements UserStorage {
     public List<String> getAllTokens() throws DataAccessException {
         List<String> tokens = new ArrayList<>();
         String query = "SELECT token FROM tokens";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -50,9 +50,9 @@ public class SQLUserStorage implements UserStorage {
     }
 
     @Override
-    public String getPassword(String username) {
+    public String getPassword(String username) throws DataAccessException {
         String query = "SELECT password FROM users WHERE username = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
@@ -64,10 +64,10 @@ public class SQLUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() throws DataAccessException {
         List<User> userList = new ArrayList<>();
         String query = "SELECT * FROM users";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -80,9 +80,9 @@ public class SQLUserStorage implements UserStorage {
     }
 
     @Override
-    public void clearAllUsers() {
+    public void clearAllUsers() throws DataAccessException {
         String query = "DELETE FROM users";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -91,9 +91,9 @@ public class SQLUserStorage implements UserStorage {
     }
 
     @Override
-    public String getUsernameFromToken(String token) {
+    public String getUsernameFromToken(String token) throws DataAccessException {
         String query = "SELECT username FROM tokens WHERE token = ?";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, token);
             ResultSet rs = stmt.executeQuery();
@@ -107,9 +107,9 @@ public class SQLUserStorage implements UserStorage {
     }
 
     @Override
-    public void addToken(String token, String username) {
+    public void addToken(String token, String username) throws DataAccessException {
         String query = "INSERT INTO tokens (token, username) VALUES (?, ?)";
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, token);
             stmt.setString(2, username);
