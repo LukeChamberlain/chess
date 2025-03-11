@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SQLGameStorage implements GameStorage {
-    private final String url = "jdbc:mysql://localhost:3306/chess";
-    private final String user = "root";
-    private final String password = "LukeMySQL25";
 
     public SQLGameStorage() {
         try {
