@@ -19,12 +19,17 @@ public class Clear {
     }
 
     public Object clearAll(Request request, Response response) throws DataAccessException {
-        userStorage.clearAllUsers();
-        gameStorage.clearAllGames();
-        validTokens.clear();
-
-        response.status(200);
-        response.type("application/json");
-        return "{}";
+        try {
+            userStorage.clearAllUsers();
+            gameStorage.clearAllGames();
+            validTokens.clear();
+    
+            response.status(200);
+            response.type("application/json");
+            return "{}";
+        } catch (DataAccessException e) {
+            response.status(500);
+            return "{\"error\": \"Internal Server Error\"}";
+        }
     }
 }
