@@ -1,4 +1,4 @@
-package dataaccess;
+package service;
 
 
 import org.junit.jupiter.api.*;
@@ -10,14 +10,13 @@ import passoff.server.TestServerFacade;
 import java.net.HttpURLConnection;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class DAOTests{
+public class MemoryStorageTests {
     private static TestServerFacade serverFacade;
     private static Server server;
     private static TestUser existingUser;
     private static TestUser newUser;
     private static TestCreateRequest createRequest;
     private static String existingAuth;
-
 
     @AfterAll
     static void stopServer() {
@@ -26,7 +25,8 @@ public class DAOTests{
 
     @BeforeAll
     public static void init() {
-        StandardAPITests.init();
+        System.out.println("Running tests with Memory Storage...");
+        StandardAPITests.init(); // Uses in-memory storage by default
         serverFacade = StandardAPITests.serverFacade;
         server = StandardAPITests.server;
         existingUser = StandardAPITests.existingUser;
