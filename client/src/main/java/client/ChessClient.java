@@ -1,29 +1,23 @@
 package client;
 
-import java.util.Arrays;
-
+import java.util.*;
+import java.net.*;
+import java.io.*;
 import com.google.gson.Gson;
-import model.Pet;
-import model.PetType;
-import exception.ResponseException;
-import client.websocket.NotificationHandler;
-import server.ServerFacade;
-import client.websocket.WebSocketFacade;
 import model.AuthData;
 import model.GameData;
+import model.GameList;
 
 public class ChessClient {
-    private AuthData authData = null;
-    private final ServerFacade server;
     private final String serverUrl;
-    private final NotificationHandler notificationHandler;
-    private WebSocketFacade ws;
     private State state = State.SIGNEDOUT;
+    private AuthData authData;
+    private List<GameData> currentGames;
+    private final Gson gson = new Gson();
+    
 
-    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
-        server = new ServerFacade(serverUrl);
+    public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -35,9 +29,9 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
-                case "create" -> createGame();
-                case "list" -> listGames(params);
-                case "join" -> joinGame();
+                case "create" -> createGame(params);
+                case "list" -> listGames();
+                case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> help();
@@ -46,87 +40,137 @@ public class ChessClient {
             return ex.getMessage();
         }
     }
+    private String sendRequest(String method, String path, String body, String authToken) throws DataAccessException {
+        try {
+            URL url = URI.create(serverUrl + path).toURL();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
+            conn.setDoOutput(true);
 
-    public String register(String... params) throws ResponseException {
-        if (params.length >= 3) {
-            AuthData auth = server.register(params[0], params[1], params[2]);
-            this.authData = auth;
-            state = State.SIGNEDIN;
-            return String.format("Logged in as %s.", auth.username());
+            if (authToken != null) {
+                conn.setRequestProperty("Authorization", authToken);
+            }
+
+            if (body != null) {
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.getBytes());
+                }
+            }
+
+            int status = conn.getResponseCode();
+            if (status >= 400) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+                    String error = br.readLine();
+                    throw new DataAccessException(error);
+                }
+            }
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+                return response.toString();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
         }
-        throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
-    public String login(String... params) throws ResponseException {
-        if (params.length >= 2) {
-            AuthData auth = server.login(params[0], params[1]);
-            this.authData = auth;
-            state = State.SIGNEDIN;
-            return String.format("Logged in as %s.", auth.username());
-        }
-        throw new ResponseException(400, "Expected: <username> <password>");
+
+    public String register(String... params) throws DataAccessException {
+        if (params.length < 3) throw new DataAccessException("Expected: <username> <password> <email>");
+        
+        Map<String, String> request = Map.of(
+            "username", params[0],
+            "password", params[1],
+            "email", params[2]
+        );
+        
+        String response = sendRequest("POST", "/user", gson.toJson(request), null);
+        authData = gson.fromJson(response, AuthData.class);
+        state = State.SIGNEDIN;
+        return "Logged in as " + authData.username();
     }
 
-    public String logout() throws ResponseException {
+
+    public String login(String... params) throws DataAccessException {
+        if (params.length < 2) throw new DataAccessException("Expected: <username> <password>");
+        Map<String, String> request = Map.of(
+            "username", params[0],
+            "password", params[1]
+        );
+        String response = sendRequest("POST", "/session", gson.toJson(request), null);
+        authData = gson.fromJson(response, AuthData.class);
+        state = State.SIGNEDIN;
+        return "Logged in as " + authData.username();
+    }
+
+    public String logout() throws DataAccessException {
         assertSignedIn();
-        server.logout(authData.authToken());
+        sendRequest("DELETE", "/session", null, authData.authToken());
         authData = null;
         state = State.SIGNEDOUT;
-        return "Logged out successfully.";
+        return "Logged out successfully";
     }
 
-    public String createGame(String... params) throws ResponseException {
+    public String createGame(String... params) throws DataAccessException {
         assertSignedIn();
-        if (params.length >= 1) {
-            String gameName = String.join(" ", params);
-            server.createGame(authData.authToken(), gameName);
-            return String.format("Game '%s' created.", gameName);
-        }
-        throw new ResponseException(400, "Expected: <gameName>");
+        if (params.length < 1) throw new DataAccessException("Expected: <gameName>");
+        
+        Map<String, String> request = Map.of("gameName", String.join(" ", params));
+        sendRequest("POST", "/game", gson.toJson(request), authData.authToken());
+        return "Game '" + params[0] + "' created";
     }
 
-    public String listGames() throws ResponseException {
+
+    public String listGames() throws DataAccessException {
         assertSignedIn();
-        currentGames = server.listGames(authData.authToken());
-        var result = new StringBuilder();
+        String response = sendRequest("GET", "/game", null, authData.authToken());
+        GameList games = gson.fromJson(response, GameList.class);
+        currentGames = games.games();
+        
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < currentGames.size(); i++) {
             GameData game = currentGames.get(i);
-            result.append(String.format("%d. %s (white: %s, black: %s)\n",
-                    i + 1, game.gameName(), game.whiteUsername(), game.blackUsername()));
+            sb.append(String.format("%d. %s (White: %s, Black: %s)\n",
+                i+1, game.gameName(), game.whiteUsername(), game.blackUsername()));
         }
-        return result.toString();
+        return sb.toString();
     }
 
-    public String joinGame(String... params) throws ResponseException {
+    public String joinGame(String... params) throws DataAccessException {
         assertSignedIn();
-        if (params.length >= 2) {
-            int gameIdx = Integer.parseInt(params[0]) - 1;
-            String playerColor = params[1].toUpperCase();
-            if (gameIdx < 0 || gameIdx >= currentGames.size()) {
-                throw new ResponseException(400, "Invalid game number.");
-            }
-            GameData game = currentGames.get(gameIdx);
-            server.joinGame(authData.authToken(), game.gameID(), playerColor);
-            // Draw the board
-            boolean isWhite = playerColor.equals("WHITE");
-            return drawChessBoard(isWhite);
+        if (params.length < 2) throw new DataAccessException("Expected: <gameNumber> <WHITE|BLACK>");
+        
+        int gameIndex = Integer.parseInt(params[0]) - 1;
+        if (gameIndex < 0 || gameIndex >= currentGames.size()) {
+            throw new DataAccessException("Invalid game number");
         }
-        throw new ResponseException(400, "Expected: <gameNumber> <WHITE|BLACK>");
+        Map<String, String> request = Map.of(
+            "gameID", String.valueOf(currentGames.get(gameIndex).gameID()),
+            "playerColor", params[1].toUpperCase()
+        );
+        sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
+        return drawChessBoard(params[1].equalsIgnoreCase("WHITE"));
     }
 
-    public String observeGame(String... params) throws ResponseException {
+    public String observeGame(String... params) throws DataAccessException {
         assertSignedIn();
-        if (params.length >= 1) {
-            int gameIdx = Integer.parseInt(params[0]) - 1;
-            if (gameIdx < 0 || gameIdx >= currentGames.size()) {
-                throw new ResponseException(400, "Invalid game number.");
-            }
-            GameData game = currentGames.get(gameIdx);
-            server.joinGame(authData.authToken(), game.gameID(), null);
-            // Draw the board from white's perspective
-            return drawChessBoard(true);
+        if (params.length < 1) throw new DataAccessException("Expected: <gameNumber>");
+        
+        int gameIndex = Integer.parseInt(params[0]) - 1;
+        if (gameIndex < 0 || gameIndex >= currentGames.size()) {
+            throw new DataAccessException("Invalid game number");
         }
-        throw new ResponseException(400, "Expected: <gameNumber>");
+        
+        Map<String, String> request = Map.of(
+            "gameID", String.valueOf(currentGames.get(gameIndex).gameID())
+        );
+        
+        sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
+        return drawChessBoard(true);
     }
 
     public String help() {
@@ -147,6 +191,12 @@ public class ChessClient {
                 - quit
                 - help
                 """;
+    }
+
+    private void assertSignedIn() throws DataAccessException {
+        if (state == State.SIGNEDOUT) {
+            throw new DataAccessException("You must be logged in");
+        }
     }
 
     private String drawChessBoard(boolean isWhitePerspective) {

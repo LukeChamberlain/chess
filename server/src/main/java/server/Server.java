@@ -9,7 +9,7 @@ public class Server {
     public static Gson gson = new Gson();
     public static void main(String[] args) {
         Server server = new Server();
-        var port = server.run(4567);
+        var port = server.run(8080);
         System.out.println("Server started on port " + port);
     }
 

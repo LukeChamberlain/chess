@@ -41,7 +41,7 @@ public class SQLGameStorage implements GameStorage {
 
     @Override
     public void addGame(String gameID, String gameName) throws DataAccessException {
-        String query = "INSERT INTO games (gameID, gameName) VALUES (?, ?)";
+        String query = "INSERT INTO games (gameName) VALUES (?)"; 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, gameID);
