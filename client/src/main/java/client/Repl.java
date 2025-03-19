@@ -8,10 +8,10 @@ import static client.EscapeSequences.*;
 import java.util.Scanner;
 
 public class Repl implements NotificationHandler {
-    private final PetClient client;
+    private final ChessClient client;
 
     public Repl(String serverUrl) {
-        client = new PetClient(serverUrl, this);
+        client = new ChessClient(serverUrl, this);
     }
 
     public void run() {
@@ -35,8 +35,9 @@ public class Repl implements NotificationHandler {
         System.out.println();
     }
 
+    @Override
     public void notify(Notification notification) {
-        System.out.println(RED + notification.message());
+        System.out.println(EscapeSequences.RED + notification.getMessage());
         printPrompt();
     }
 
