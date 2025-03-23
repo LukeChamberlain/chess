@@ -41,12 +41,17 @@ public class SQLGameStorage implements GameStorage {
 
     @Override
     public void addGame(String gameID, String gameName) throws DataAccessException {
-        String query = "INSERT INTO games (gameName) VALUES (?)"; 
+        String query = "INSERT INTO games (gameName) VALUES (?)";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, gameID);
-            stmt.setString(2, gameName);
+            PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, gameName);
             stmt.executeUpdate();
+            
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int generatedGameID = rs.getInt(1);
+                }
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Error adding game: " + e.getMessage());
         }

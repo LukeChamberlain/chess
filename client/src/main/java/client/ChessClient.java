@@ -117,8 +117,6 @@ public class ChessClient {
 
     public String createGame(String... params) throws DataAccessException {
         assertSignedIn();
-        if (params.length < 1) throw new DataAccessException("Expected: <gameName>");
-        
         Map<String, String> request = Map.of("gameName", String.join(" ", params));
         sendRequest("POST", "/game", gson.toJson(request), authData.authToken());
         return "Game '" + params[0] + "' created";
@@ -129,15 +127,15 @@ public class ChessClient {
         assertSignedIn();
         String response = sendRequest("GET", "/game", null, authData.authToken());
         GameList games = gson.fromJson(response, GameList.class);
-        currentGames = games.games();
+        currentGames = games.games() != null ? games.games() : new ArrayList<>();
         
-        StringBuilder sb = new StringBuilder();
+        var result = new StringBuilder();
         for (int i = 0; i < currentGames.size(); i++) {
             GameData game = currentGames.get(i);
-            sb.append(String.format("%d. %s (White: %s, Black: %s)\n",
-                i+1, game.gameName(), game.whiteUsername(), game.blackUsername()));
+            result.append(String.format("%d. %s (white: %s, black: %s)\n",
+                    i + 1, game.gameName(), game.whiteUsername(), game.blackUsername()));
         }
-        return sb.toString();
+        return result.toString();
     }
 
     public String joinGame(String... params) throws DataAccessException {
@@ -158,8 +156,6 @@ public class ChessClient {
 
     public String observeGame(String... params) throws DataAccessException {
         assertSignedIn();
-        if (params.length < 1) throw new DataAccessException("Expected: <gameNumber>");
-        
         int gameIndex = Integer.parseInt(params[0]) - 1;
         if (gameIndex < 0 || gameIndex >= currentGames.size()) {
             throw new DataAccessException("Invalid game number");
@@ -205,9 +201,10 @@ public class ChessClient {
             int displayRank = isWhitePerspective ? 8 - rank : rank + 1;
             board.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(displayRank).append(" ");
             for (int file = 0; file < 8; file++) {
-                boolean isLight = (rank + file) % 2 == 0;
+                int actualFile = isWhitePerspective ? file : 7 - file; // Reverse file order if black perspective
+                boolean isLight = (rank + actualFile) % 2 == 0;
                 String bgColor = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
-                board.append(bgColor).append(getPieceSymbol(rank, file));
+                board.append(bgColor).append(getPieceSymbol(8 - displayRank, actualFile));
             }
             board.append(EscapeSequences.RESET_BG_COLOR).append("\n");
         }

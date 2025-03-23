@@ -23,7 +23,7 @@ public class Repl {
                 try {
                     result = client.eval(line);
                     if (result.startsWith("Chess board displayed")) {
-                        System.out.print(ERASE_SCREEN);  // Clear screen for board
+                        System.out.print(ERASE_SCREEN); 
                     }
                     System.out.print(SET_TEXT_COLOR_BLUE + result + RESET_TEXT_COLOR);
                 } catch (Throwable e) {
