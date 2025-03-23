@@ -31,12 +31,11 @@ public class CreateGame{
                 return gson.toJson(Map.of("message", "Error: bad request"));
             }
 
-            String gameID = generateToken();
-            gameStorage.addGame(gameID, gameRequest.gameName);
+            String gameID = gameStorage.addGame(gameRequest.gameName);
 
             response.status(200);
             response.type("application/json");
-            return gson.toJson(Map.of("gameID", Integer.parseInt(gameID)));
+            return gson.toJson(Map.of("gameID", gameID));
         } catch (Exception e) {
             response.status(500);
             return gson.toJson(Map.of("message", e.getMessage()));

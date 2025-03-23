@@ -69,7 +69,7 @@ public class JoinGame {
             } else {
                 game.blackUsername = username;
             }
-            gameStorage.updateGame(gameID, game.whiteUsername, game.blackUsername);
+            gameStorage.updateGame(gameID, username, playerColor);
 
             response.status(200);
             return gson.toJson(Map.of("gameID", gameID));

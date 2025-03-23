@@ -13,8 +13,10 @@ public class GameMemoryStorage implements GameStorage {
         games.clear();
     }
     @Override
-    public void addGame(String gameID, String gameName) throws DataAccessException {
+    public String addGame(String gameName) throws DataAccessException {
+        String gameID = String.valueOf(games.size() + 1);
         games.put(gameID, new Game(gameID, gameName));
+        return gameID;
     }
     @Override
     public List<Game> getAllGames() {
@@ -25,11 +27,15 @@ public class GameMemoryStorage implements GameStorage {
         return games.get(gameID);
     }
     @Override
-    public void updateGame(String gameID, String whiteUsername, String blackUsername) {
+    public void updateGame(String gameID, String username, String color) throws DataAccessException {
         Game game = games.get(gameID);
-        if (game != null) {
-            game.whiteUsername = whiteUsername;
-            game.blackUsername = blackUsername;
+        if (game == null) {
+            throw new DataAccessException("Game not found");
+        }
+        if (color.equalsIgnoreCase("WHITE")) {
+            game.whiteUsername = username;
+        } else {
+            game.blackUsername = username;
         }
     }
 }
