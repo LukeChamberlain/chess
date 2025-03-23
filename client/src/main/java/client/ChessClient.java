@@ -200,8 +200,48 @@ public class ChessClient {
     }
 
     private String drawChessBoard(boolean isWhitePerspective) {
-        // Implement board drawing logic using EscapeSequences
-        // ... (see next step for implementation) ...
-        return "Chess board displayed.";
+        StringBuilder board = new StringBuilder();
+        for (int rank = 0; rank < 8; rank++) {
+            int displayRank = isWhitePerspective ? 8 - rank : rank + 1;
+            board.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(displayRank).append(" ");
+            for (int file = 0; file < 8; file++) {
+                boolean isLight = (rank + file) % 2 == 0;
+                String bgColor = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+                board.append(bgColor).append(getPieceSymbol(rank, file));
+            }
+            board.append(EscapeSequences.RESET_BG_COLOR).append("\n");
+        }
+        board.append("   ");
+        for (char c = 'a'; c <= 'h'; c++) {
+            char displayChar = isWhitePerspective ? c : (char) ('h' - (c - 'a'));
+            board.append(" ").append(displayChar).append(" ");
+        }
+        board.append(EscapeSequences.RESET_TEXT_COLOR);
+        return board.toString();
+    }
+    
+    private String getPieceSymbol(int rank, int file) {
+        if (rank == 0) {
+            switch (file) {
+                case 0, 7 -> { return EscapeSequences.WHITE_ROOK; }
+                case 1, 6 -> { return EscapeSequences.WHITE_KNIGHT; }
+                case 2, 5 -> { return EscapeSequences.WHITE_BISHOP; }
+                case 3 -> { return EscapeSequences.WHITE_QUEEN; }
+                case 4 -> { return EscapeSequences.WHITE_KING; }
+            }
+        } else if (rank == 1) {
+            return EscapeSequences.WHITE_PAWN;
+        } else if (rank == 6) {
+            return EscapeSequences.BLACK_PAWN;
+        } else if (rank == 7) {
+            switch (file) {
+                case 0, 7 -> { return EscapeSequences.BLACK_ROOK; }
+                case 1, 6 -> { return EscapeSequences.BLACK_KNIGHT; }
+                case 2, 5 -> { return EscapeSequences.BLACK_BISHOP; }
+                case 3 -> { return EscapeSequences.BLACK_QUEEN; }
+                case 4 -> { return EscapeSequences.BLACK_KING; }
+            }
+        }
+        return EscapeSequences.EMPTY;
     }
 }
