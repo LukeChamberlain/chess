@@ -80,8 +80,9 @@ public class ChessClient {
 
 
     public String register(String... params) throws DataAccessException {
-        if (params.length < 3) throw new DataAccessException("Expected: <username> <password> <email>");
-        
+        if (params.length < 3){
+            throw new DataAccessException("Expected: <username> <password> <email>");
+        }
         Map<String, String> request = Map.of(
             "username", params[0],
             "password", params[1],
@@ -96,7 +97,9 @@ public class ChessClient {
 
 
     public String login(String... params) throws DataAccessException {
-        if (params.length < 2) throw new DataAccessException("Expected: <username> <password>");
+        if (params.length < 2) {
+            throw new DataAccessException("Expected: <username> <password>");
+        }
         Map<String, String> request = Map.of(
             "username", params[0],
             "password", params[1]
@@ -140,7 +143,9 @@ public class ChessClient {
 
     public String joinGame(String... params) throws DataAccessException {
         assertSignedIn();
-        if (params.length < 2) throw new DataAccessException("Expected: <gameNumber> <WHITE|BLACK>");
+        if (params.length < 2){
+            throw new DataAccessException("Expected: <gameNumber> <WHITE|BLACK>");
+        }
         
         int gameIndex = Integer.parseInt(params[0]) - 1;
         if (gameIndex < 0 || gameIndex >= currentGames.size()) {
