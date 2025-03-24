@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.*;
+
+import chess.ChessGame;
 import server.Server;
 import passoff.model.*;
 import passoff.server.TestServerFacade;
@@ -96,5 +98,77 @@ public class ServerFacadeTests {
         TestResult logoutResult = serverFacade.logout("invalidAuthToken");
         assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
         assertEquals("Error: unauthorized", logoutResult.getMessage());
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Successful Create")
+    void SuccessfulCreate() throws Exception {
+        TestUser user = new TestUser("createUser", "createPass", "create@email.com");
+        TestAuthResult authResult = serverFacade.register(user);
+        TestCreateResult createResult = serverFacade.createGame(
+            new TestCreateRequest("Test Game"), 
+            authResult.getAuthToken()
+        );
+        assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode());
+        assertTrue(createResult.getGameID() > 0);
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Unsuccessful Create")
+    void UnsuccessfulCreate() throws Exception {
+        TestCreateResult createResult = serverFacade.createGame(
+            new TestCreateRequest("Invalid Game"), 
+            "badToken"
+        );
+        assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
+        assertEquals("Error: unauthorized", createResult.getMessage());
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Successful List")
+    void SuccessfulList() throws Exception {
+        TestUser user = new TestUser("listUser", "listPass", "list@email.com");
+        TestAuthResult authResult = serverFacade.register(user);
+        serverFacade.createGame(new TestCreateRequest("List Game"), authResult.getAuthToken());
+        TestListResult listResult = serverFacade.listGames(authResult.getAuthToken());
+        assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode());
+        assertEquals(1, listResult.getGames().length);
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Unsuccessful List")
+    void UnsuccessfulList() throws Exception {
+        TestListResult listResult = serverFacade.listGames("invalidToken");
+        assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
+        assertEquals("Error: unauthorized", listResult.getMessage());
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Successful Join")
+    void SuccessfulJoin() throws Exception {
+        TestUser user = new TestUser("joinUser", "joinPass", "join@email.com");
+        TestAuthResult authResult = serverFacade.register(user);
+        TestCreateResult game = serverFacade.createGame(
+            new TestCreateRequest("Join Game"), 
+            authResult.getAuthToken()
+        );
+        TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, game.getGameID());
+        TestResult joinResult = serverFacade.joinPlayer(joinRequest, authResult.getAuthToken());
+        assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode());
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Unsuccessful Join")
+    void UnsuccessfulJoin() throws Exception {
+        TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, 9999);
+        TestResult joinResult = serverFacade.joinPlayer(joinRequest, "invalidToken");
+        assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
+        assertEquals("Error: unauthorized", joinResult.getMessage());
     }
 }
