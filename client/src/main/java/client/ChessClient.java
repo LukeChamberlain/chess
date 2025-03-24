@@ -151,28 +151,26 @@ public class ChessClient {
         if (gameIndex < 0 || gameIndex >= currentGames.size()) {
             throw new DataAccessException("Invalid game number");
         }
-        Map<String, String> request = Map.of(
-            "gameID", String.valueOf(currentGames.get(gameIndex).gameID()),
-            "playerColor", params[1].toUpperCase()
-        );
+        int gameID = currentGames.get(gameIndex).gameID();
+        Map<String, Object> request = new HashMap<>();
+        request.put("gameID", gameID);
+        request.put("playerColor", params[1].toUpperCase());
         sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
         return drawChessBoard(params[1].equalsIgnoreCase("WHITE"));
     }
 
     public String observeGame(String... params) throws DataAccessException {
         assertSignedIn();
-        int gameIndex = Integer.parseInt(params[0]) - 1;
-        if (gameIndex < 0 || gameIndex >= currentGames.size()) {
-            throw new DataAccessException("Invalid game number");
+        try {
+            int gameIndex = Integer.parseInt(params[0]) - 1;
+            if (gameIndex < 0 || gameIndex >= currentGames.size()) {
+                throw new DataAccessException("Invalid game number");
+            }
+            return drawChessBoard(true); 
+            } catch (NumberFormatException e) {
+                throw new DataAccessException("Game number must be a valid integer (e.g., '1')");
+            }
         }
-        
-        Map<String, String> request = Map.of(
-            "gameID", String.valueOf(currentGames.get(gameIndex).gameID())
-        );
-        
-        sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
-        return drawChessBoard(true);
-    }
 
     public String help() {
         if (state == State.SIGNEDOUT) {
@@ -206,7 +204,7 @@ public class ChessClient {
             int displayRank = isWhitePerspective ? 8 - rank : rank + 1;
             board.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(displayRank).append(" ");
             for (int file = 0; file < 8; file++) {
-                int actualFile = isWhitePerspective ? file : 7 - file; // Reverse file order if black perspective
+                int actualFile = isWhitePerspective ? file : 7 - file;
                 boolean isLight = (rank + actualFile) % 2 == 0;
                 String bgColor = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
                 board.append(bgColor).append(getPieceSymbol(8 - displayRank, actualFile));
