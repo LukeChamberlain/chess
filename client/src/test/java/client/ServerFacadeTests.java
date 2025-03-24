@@ -40,7 +40,7 @@ public class ServerFacadeTests {
     @Test
     @Order(1)
     @DisplayName("Successful Registration")
-    void SuccessfulRegister() throws Exception {
+    void successfulRegister() throws Exception {
         TestUser newUser = new TestUser("newUser", "password", "new@email.com");
         TestAuthResult authResult = serverFacade.register(newUser);
         assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode());
@@ -51,7 +51,7 @@ public class ServerFacadeTests {
     @Test
     @Order(2)
     @DisplayName("Unsuccessful Registration")
-    void UnsuccessfulRegister() throws Exception {
+    void unsuccessfulRegister() throws Exception {
         TestUser existingUser = new TestUser("existingUser", "password", "existing@email.com");
         serverFacade.register(existingUser);
         TestAuthResult duplicateResult = serverFacade.register(existingUser);
@@ -62,7 +62,7 @@ public class ServerFacadeTests {
     @Test
     @Order(3)
     @DisplayName("Successful Login")
-    void SuccessfulLogin() throws Exception {
+    void successfulLogin() throws Exception {
         TestUser user = new TestUser("validUser", "validpassword", "valid@email.com");
         serverFacade.register(user);
         TestAuthResult loginResult = serverFacade.login(user);
@@ -74,7 +74,7 @@ public class ServerFacadeTests {
     @Test
     @Order(4)
     @DisplayName("Unsuccessful Login")
-    void UnsuccessfulLogin() throws Exception {
+    void unsuccessfulLogin() throws Exception {
         TestUser invalidUser = new TestUser("nonExistentUser", "wrongPass", "bad@email.com");
         TestAuthResult loginResult = serverFacade.login(invalidUser);
         assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
@@ -84,7 +84,7 @@ public class ServerFacadeTests {
     @Test
     @Order(5)
     @DisplayName("Successful Logout")
-    void SuccessfulLogout() throws Exception {
+    void successfulLogout() throws Exception {
         TestUser user = new TestUser("logoutUser", "logoutPass", "logout@email.com");
         TestAuthResult authResult = serverFacade.register(user);
         TestResult logoutResult = serverFacade.logout(authResult.getAuthToken());
@@ -94,7 +94,7 @@ public class ServerFacadeTests {
     @Test
     @Order(6)
     @DisplayName("Unsuccessful Logout")
-    void UnsuccessfulLogout() throws Exception {
+    void unsuccessfulLogout() throws Exception {
         TestResult logoutResult = serverFacade.logout("invalidAuthToken");
         assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
         assertEquals("Error: unauthorized", logoutResult.getMessage());
@@ -103,7 +103,7 @@ public class ServerFacadeTests {
     @Test
     @Order(7)
     @DisplayName("Successful Create")
-    void SuccessfulCreate() throws Exception {
+    void successfulCreate() throws Exception {
         TestUser user = new TestUser("createUser", "createPass", "create@email.com");
         TestAuthResult authResult = serverFacade.register(user);
         TestCreateResult createResult = serverFacade.createGame(
@@ -117,7 +117,7 @@ public class ServerFacadeTests {
     @Test
     @Order(8)
     @DisplayName("Unsuccessful Create")
-    void UnsuccessfulCreate() throws Exception {
+    void unsuccessfulCreate() throws Exception {
         TestCreateResult createResult = serverFacade.createGame(
             new TestCreateRequest("Invalid Game"), 
             "badToken"
@@ -129,7 +129,7 @@ public class ServerFacadeTests {
     @Test
     @Order(9)
     @DisplayName("Successful List")
-    void SuccessfulList() throws Exception {
+    void successfulList() throws Exception {
         TestUser user = new TestUser("listUser", "listPass", "list@email.com");
         TestAuthResult authResult = serverFacade.register(user);
         serverFacade.createGame(new TestCreateRequest("List Game"), authResult.getAuthToken());
@@ -141,7 +141,7 @@ public class ServerFacadeTests {
     @Test
     @Order(10)
     @DisplayName("Unsuccessful List")
-    void UnsuccessfulList() throws Exception {
+    void unsuccessfulList() throws Exception {
         TestListResult listResult = serverFacade.listGames("invalidToken");
         assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
         assertEquals("Error: unauthorized", listResult.getMessage());
@@ -150,7 +150,7 @@ public class ServerFacadeTests {
     @Test
     @Order(11)
     @DisplayName("Successful Join")
-    void SuccessfulJoin() throws Exception {
+    void successfulJoin() throws Exception {
         TestUser user = new TestUser("joinUser", "joinPass", "join@email.com");
         TestAuthResult authResult = serverFacade.register(user);
         TestCreateResult game = serverFacade.createGame(
@@ -165,7 +165,7 @@ public class ServerFacadeTests {
     @Test
     @Order(12)
     @DisplayName("Unsuccessful Join")
-    void UnsuccessfulJoin() throws Exception {
+    void unsuccessfulJoin() throws Exception {
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, 9999);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, "invalidToken");
         assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, serverFacade.getStatusCode());
