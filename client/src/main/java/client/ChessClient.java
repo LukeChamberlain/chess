@@ -58,12 +58,14 @@ public class ChessClient {
             }
 
             int status = conn.getResponseCode();
-            if (status >= 400) {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
-                    String error = br.readLine();
-                    throw new DataAccessException(error);
-                }
+        if (status >= 400) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+                String errorJson = br.readLine();
+                @SuppressWarnings("unchecked")
+                Map<String, String> error = gson.fromJson(errorJson, Map.class);
+                throw new DataAccessException(error.get("message")); 
             }
+        }
 
             try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 StringBuilder response = new StringBuilder();
@@ -100,14 +102,22 @@ public class ChessClient {
         if (params.length < 2) {
             throw new DataAccessException("Expected: <username> <password>");
         }
-        Map<String, String> request = Map.of(
-            "username", params[0],
-            "password", params[1]
-        );
-        String response = sendRequest("POST", "/session", gson.toJson(request), null);
-        authData = gson.fromJson(response, AuthData.class);
-        state = State.SIGNEDIN;
-        return "Logged in as " + authData.username();
+    
+        try {
+            Map<String, String> request = Map.of("username", params[0], "password", params[1]);
+            String response = sendRequest("POST", "/session", gson.toJson(request), null);
+            authData = gson.fromJson(response, AuthData.class);
+            state = State.SIGNEDIN;
+            return "Logged in as " + authData.username();
+        } catch (DataAccessException ex) {
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, String> error = gson.fromJson(ex.getMessage(), Map.class);
+                return error.get("message"); 
+            } catch (Exception e) {
+                return ex.getMessage(); 
+            }
+        }
     }
 
     public String logout() throws DataAccessException {
@@ -131,12 +141,14 @@ public class ChessClient {
         String response = sendRequest("GET", "/game", null, authData.authToken());
         GameList games = gson.fromJson(response, GameList.class);
         currentGames = games.games() != null ? games.games() : new ArrayList<>();
-        
+    
         var result = new StringBuilder();
         for (int i = 0; i < currentGames.size(); i++) {
             GameData game = currentGames.get(i);
+            String white = game.whiteUsername() != null ? game.whiteUsername() : "no player";
+            String black = game.blackUsername() != null ? game.blackUsername() : "no player";
             result.append(String.format("%d. %s (white: %s, black: %s)\n",
-                    i + 1, game.gameName(), game.whiteUsername(), game.blackUsername()));
+                    i + 1, game.gameName(), white, black));
         }
         return result.toString();
     }
@@ -146,7 +158,11 @@ public class ChessClient {
         if (params.length < 2){
             throw new DataAccessException("Expected: <gameNumber> <WHITE|BLACK>");
         }
-        
+        String playerColor = params[1].toUpperCase();
+        if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
+            throw new DataAccessException("Invalid color. Use 'WHITE' or 'BLACK'.");
+        }
+    try{
         int gameIndex = Integer.parseInt(params[0]) - 1;
         if (gameIndex < 0 || gameIndex >= currentGames.size()) {
             throw new DataAccessException("Invalid game number");
@@ -157,7 +173,10 @@ public class ChessClient {
         request.put("playerColor", params[1].toUpperCase());
         sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
         return drawChessBoard(params[1].equalsIgnoreCase("WHITE"));
+    } catch (NumberFormatException e) {
+        throw new DataAccessException("Game number must be a valid integer (e.g., '1')");
     }
+}
 
     public String observeGame(String... params) throws DataAccessException {
         assertSignedIn();
