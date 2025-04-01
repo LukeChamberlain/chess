@@ -93,6 +93,11 @@
             <scope>system</scope>
             <systemPath>${pom.basedir}/lib/passoff-dependencies.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client</artifactId>
+            <version>1.15</version>
+        </dependency>
     </dependencies>
 
 </project>
