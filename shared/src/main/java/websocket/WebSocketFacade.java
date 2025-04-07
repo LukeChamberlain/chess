@@ -1,12 +1,13 @@
 
 package websocket;
+package server;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import websocket.commands.*;
 import websocket.messages.*;
-import server.GameManager;
+import chess.server.src.GameManager;
 import dataaccess.*;
 import chess.ChessGame;
 

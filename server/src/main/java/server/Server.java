@@ -3,7 +3,7 @@ package server;
 import spark.*;
 import com.google.gson.Gson;
 import dataaccess.*;
-import client.websocket.WebSocketFacade;
+import websocket.WebSocketFacade;
 import java.util.*;
 public class Server {
     public static Set<String> tokens = new HashSet<>();

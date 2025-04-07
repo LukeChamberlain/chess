@@ -4,9 +4,14 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import com.google.gson.Gson;
+
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.GameList;
+import websocket.WebSocketFacade;
+import static client.EscapeSequences.*;
 
 public class ChessClient {
     private final String serverUrl;
@@ -14,6 +19,8 @@ public class ChessClient {
     private AuthData authData;
     private List<GameData> currentGames;
     private final Gson gson = new Gson();
+    private WebSocketFacade webSocketFacade;
+    private ChessGame currentGame;
     
 
     public ChessClient(String serverUrl) {
@@ -97,6 +104,24 @@ public class ChessClient {
         return "Logged in as " + authData.username();
     }
 
+    public void updateBoard(ChessGame game) {
+        this.currentGame = game;
+        System.out.println(ERASE_SCREEN + SET_TEXT_COLOR_BLUE + "Board updated!");
+        System.out.println(drawChessBoard(currentGame, isWhitePerspective)); // Redraw the board
+    }
+    
+    public void notify(String message) {
+        System.out.println(SET_TEXT_COLOR_GREEN + "[Notification] " + message + RESET_TEXT_COLOR);
+    }
+    
+    public void notifyError(String errorMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + "[Error] " + errorMessage + RESET_TEXT_COLOR);
+    }
+    
+    private boolean isWhitePerspective = true;
+    public void setPerspective(boolean isWhite) {
+        this.isWhitePerspective = isWhite;
+    }
 
     public String login(String... params) throws DataAccessException {
         if (params.length < 2) {
@@ -172,10 +197,16 @@ public class ChessClient {
         request.put("gameID", gameID);
         request.put("playerColor", params[1].toUpperCase());
         sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
+        currentGame = Server.gameStorage.getGame(String.valueOf(gameID)).gameState;
+        webSocketFacade = new WebSocketFacade(serverUrl.replace("http", "ws") + "/ws", this);
+        setPerspective(params[1].equalsIgnoreCase("WHITE"));
+        webSocketFacade.connect(gameID, authData.authToken());
         return drawChessBoard(params[1].equalsIgnoreCase("WHITE"));
     } catch (NumberFormatException e) {
         throw new DataAccessException("Game number must be a valid integer (e.g., '1')");
     }
+    setPerspective(params[1].equalsIgnoreCase("WHITE"));
+    return drawChessBoard(currentGame, isWhitePerspective);
 }
 
     public String observeGame(String... params) throws DataAccessException {
@@ -185,10 +216,17 @@ public class ChessClient {
             if (gameIndex < 0 || gameIndex >= currentGames.size()) {
                 throw new DataAccessException("Invalid game number");
             }
-            return drawChessBoard(true); 
+            int gameID = currentGames.get(gameIndex).gameID();
+            currentGame = Server.gameStorage.getGame(String.valueOf(gameID)).gameState;
+            webSocketFacade = new WebSocketFacade(serverUrl.replace("http", "ws") + "/ws", this);
+            webSocketFacade.connect(gameID, authData.authToken());
+            setPerspective(true);
+            return drawChessBoard(currentGame, isWhitePerspective);
             } catch (NumberFormatException e) {
                 throw new DataAccessException("Game number must be a valid integer (e.g., '1')");
             }
+            setPerspective(true); // Observers see white's perspective
+            return drawChessBoard(currentGame, isWhitePerspective);
         }
 
     public String help() {
@@ -217,8 +255,12 @@ public class ChessClient {
         }
     }
 
-    private String drawChessBoard(boolean isWhitePerspective) {
-        StringBuilder board = new StringBuilder();
+    private String drawChessBoard(ChessGame game, boolean isWhitePerspective) {
+        if (currentGame == null) {
+            return "No game to display.";
+        }
+        ChessBoard board = currentGame.getBoard(); // Assume ChessGame has a getBoard() method
+        StringBuilder sb = new StringBuilder();
         for (int rank = 0; rank < 8; rank++) {
             int displayRank = isWhitePerspective ? 8 - rank : rank + 1;
             board.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(displayRank).append(" ");
@@ -262,5 +304,9 @@ public class ChessClient {
             }
         }
         return EscapeSequences.EMPTY;
+    }
+
+    private String drawChessBoard(boolean isWhitePerspective) {
+        return drawChessBoard(currentGame, isWhitePerspective);
     }
 }
