@@ -3,7 +3,6 @@ package server;
 import spark.*;
 import com.google.gson.Gson;
 import dataaccess.*;
-import websocket.WebSocketFacade;
 import java.util.*;
 public class Server {
     public static GameStorage gameStorage;
@@ -35,7 +34,6 @@ public class Server {
         Spark.post("/user", (request, response) -> new UserReg(userStorage).register(request, response));
         Spark.post("/session", (request, response) -> new Login(userStorage, tokens).login(request, response));
         Spark.delete("/session", (request, response) -> new Logout(userStorage, tokens).logout(request, response));
-        Spark.webSocket("/ws", new WebSocketFacade());
 
         GameStorage gameStorage = new SQLGameStorage();
         Spark.post("/game", (request, response) -> new CreateGame(gameStorage, tokens).create(request, response));
