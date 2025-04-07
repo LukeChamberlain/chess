@@ -42,25 +42,29 @@ public class DatabaseManager {
             try (var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME)) {
                 createDbStatement.executeUpdate();
             }
-            try (var setCatalogConn = DriverManager.getConnection(CONNECTION_URL + "/" + DATABASE_NAME, USER, PASSWORD);
-                 var createUsersTable = setCatalogConn.prepareStatement(
-                         "CREATE TABLE IF NOT EXISTS users (" +
-                                 "username VARCHAR(255) PRIMARY KEY," +
-                                 "password VARCHAR(255) NOT NULL," +
-                                 "email VARCHAR(255) NOT NULL UNIQUE)");
-                 var createTokensTable = setCatalogConn.prepareStatement(
-                         "CREATE TABLE IF NOT EXISTS tokens (" +
-                                 "token VARCHAR(255) PRIMARY KEY," +
-                                 "username VARCHAR(255) NOT NULL)");
-                 var createGamesTable = setCatalogConn.prepareStatement(
-                         "CREATE TABLE IF NOT EXISTS games (" +
-                                 "gameID INT AUTO_INCREMENT PRIMARY KEY," +
-                                 "gameName VARCHAR(255) NOT NULL," +
-                                 "whiteUsername VARCHAR(255)," +
-                                 "blackUsername VARCHAR(255))")) {
-                createUsersTable.executeUpdate();
-                createTokensTable.executeUpdate();
-                createGamesTable.executeUpdate(); // Add games table
+            try (var setCatalogConn = DriverManager.getConnection(CONNECTION_URL + "/" + DATABASE_NAME, USER, PASSWORD)) {
+                try (var createUsersTable = setCatalogConn.prepareStatement(
+                        "CREATE TABLE IF NOT EXISTS users (" +
+                                "username VARCHAR(255) PRIMARY KEY," +
+                                "password VARCHAR(255) NOT NULL," +
+                                "email VARCHAR(255) NOT NULL UNIQUE)")) {
+                    createUsersTable.executeUpdate();
+                }
+                try (var createTokensTable = setCatalogConn.prepareStatement(
+                        "CREATE TABLE IF NOT EXISTS tokens (" +
+                                "token VARCHAR(255) PRIMARY KEY," +
+                                "username VARCHAR(255) NOT NULL)")) {
+                    createTokensTable.executeUpdate();
+                }
+                try (var createGamesTable = setCatalogConn.prepareStatement(
+                        "CREATE TABLE IF NOT EXISTS games (" +
+                                "gameID INT AUTO_INCREMENT PRIMARY KEY," +
+                                "gameName VARCHAR(255) NOT NULL," +
+                                "whiteUsername VARCHAR(255)," +
+                                "blackUsername VARCHAR(255)," +
+                                "gameState TEXT)")) {
+                    createGamesTable.executeUpdate();
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
