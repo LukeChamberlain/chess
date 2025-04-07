@@ -1,4 +1,3 @@
-
 package websocket;
 
 import com.google.gson.Gson;
@@ -6,21 +5,35 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import websocket.commands.*;
 import websocket.messages.*;
-import chess.server.src.GameManager;
+import server.GameManager;
+import server.Server;
 import dataaccess.*;
 import chess.ChessGame;
 
 public class WebSocketFacade extends WebSocketAdapter {
-    private final ChessClient client;
+    private final GameStorage gameStorage;
     private final Gson gson = new Gson();
     private Session session;
     private Integer gameID;
     private String authToken;
 
-    public WebSocketFacade(String url, ChessClient client) {
-        this.client = client;
-        // Initialize WebSocket connection here if needed
+    public WebSocketFacade() {
+        this.gameStorage = Server.gameStorage;
     }
+
+    private void sendError(String errorMessage) {
+        try {
+            if (session != null && session.isOpen()) {
+                session.getRemote().sendString(
+                    gson.toJson(new ErrorMessage(errorMessage))
+                );
+            }
+        } catch (Exception e) {
+            gson.toJson(new ErrorMessage(errorMessage));
+        }
+    }
+
+
     
     public void connect(int gameID, String authToken) {
         this.gameID = gameID;
@@ -93,6 +106,34 @@ public class WebSocketFacade extends WebSocketAdapter {
 
     private void broadcastNotification(String message) {
         GameManager.broadcastMessage(gameID, gson.toJson(new NotificationMessage(message)), session);
+    }
+
+    private void handleResign() throws DataAccessException {
+        String username = Server.userStorage.getUsernameFromToken(authToken);
+        if (username == null) {
+            sendError("Invalid auth token");
+            return;
+        }
+
+        Game game = Server.gameStorage.getGame(String.valueOf(gameID));
+        if (game == null) {
+            sendError("Invalid game ID");
+            return;
+        }
+
+        broadcastNotification(username + " has resigned from the game");
+        GameManager.removeSession(gameID, session);
+    }
+
+    private void handleLeave() throws DataAccessException {
+        String username = Server.userStorage.getUsernameFromToken(authToken);
+        if (username == null) {
+            sendError("Invalid auth token");
+            return;
+        }
+
+        GameManager.removeSession(gameID, session);
+        broadcastNotification(username + " has left the game");
     }
 
     @Override

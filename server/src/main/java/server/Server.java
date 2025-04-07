@@ -7,6 +7,7 @@ import websocket.WebSocketFacade;
 import java.util.*;
 public class Server {
     public static GameStorage gameStorage;
+    public static UserStorage userStorage;
     public static Set<String> tokens = new HashSet<>();
     public static Gson gson = new Gson();
     public static void main(String[] args) {
@@ -16,6 +17,7 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        userStorage = new SQLUserStorage();
         gameStorage = new SQLGameStorage();
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");

@@ -4,13 +4,13 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import com.google.gson.Gson;
-import chess.Server;
 import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.GameList;
-import websocket.WebSocketFacade;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import static client.EscapeSequences.*;
 
 public class ChessClient {
@@ -197,7 +197,7 @@ public class ChessClient {
         request.put("gameID", gameID);
         request.put("playerColor", params[1].toUpperCase());
         sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
-        currentGame = Server.gameMemoryStorage.getGame(String.valueOf(gameID)).gameState();
+        throw new DataAccessException("Server reference is missing. Ensure the Server class is properly defined and accessible.");
         webSocketFacade = new WebSocketFacade(serverUrl.replace("http", "ws") + "/ws", this);
         setPerspective(params[1].equalsIgnoreCase("WHITE"));
         webSocketFacade.connect(gameID, authData.authToken());
@@ -217,7 +217,7 @@ public class ChessClient {
                 throw new DataAccessException("Invalid game number");
             }
             int gameID = currentGames.get(gameIndex).gameID();
-            currentGame = Server.gameStorage.getGame(String.valueOf(gameID)).gameState();
+            currentGame = Server.gameMemoryStorage.getGame(String.valueOf(gameID)).gameState();
             webSocketFacade = new WebSocketFacade(serverUrl.replace("http", "ws") + "/ws", this);
             webSocketFacade.connect(gameID, authData.authToken());
             setPerspective(true);
