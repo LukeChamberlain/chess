@@ -4,7 +4,7 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import com.google.gson.Gson;
-
+import chess.Server;
 import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
@@ -197,7 +197,7 @@ public class ChessClient {
         request.put("gameID", gameID);
         request.put("playerColor", params[1].toUpperCase());
         sendRequest("PUT", "/game", gson.toJson(request), authData.authToken());
-        currentGame = Server.gameStorage.getGame(String.valueOf(gameID)).gameState;
+        currentGame = Server.gameMemoryStorage.getGame(String.valueOf(gameID)).gameState();
         webSocketFacade = new WebSocketFacade(serverUrl.replace("http", "ws") + "/ws", this);
         setPerspective(params[1].equalsIgnoreCase("WHITE"));
         webSocketFacade.connect(gameID, authData.authToken());
@@ -217,7 +217,7 @@ public class ChessClient {
                 throw new DataAccessException("Invalid game number");
             }
             int gameID = currentGames.get(gameIndex).gameID();
-            currentGame = Server.gameStorage.getGame(String.valueOf(gameID)).gameState;
+            currentGame = Server.gameStorage.getGame(String.valueOf(gameID)).gameState();
             webSocketFacade = new WebSocketFacade(serverUrl.replace("http", "ws") + "/ws", this);
             webSocketFacade.connect(gameID, authData.authToken());
             setPerspective(true);
@@ -263,21 +263,21 @@ public class ChessClient {
         StringBuilder sb = new StringBuilder();
         for (int rank = 0; rank < 8; rank++) {
             int displayRank = isWhitePerspective ? 8 - rank : rank + 1;
-            board.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(displayRank).append(" ");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(displayRank).append(" ");
             for (int file = 0; file < 8; file++) {
                 int actualFile = isWhitePerspective ? file : 7 - file;
                 boolean isLight = (rank + actualFile) % 2 == 0;
                 String bgColor = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
-                board.append(bgColor).append(getPieceSymbol(8 - displayRank, actualFile));
+                sb.append(bgColor).append(getPieceSymbol(8 - displayRank, actualFile));
             }
-            board.append(EscapeSequences.RESET_BG_COLOR).append("\n");
+            sb.append(EscapeSequences.RESET_BG_COLOR).append("\n");
         }
-        board.append("   ");
+        sb.append("   ");
         for (char c = 'a'; c <= 'h'; c++) {
             char displayChar = isWhitePerspective ? c : (char) ('h' - (c - 'a'));
-            board.append(" ").append(displayChar).append(" ");
+            sb.append(" ").append(displayChar).append(" ");
         }
-        board.append(EscapeSequences.RESET_TEXT_COLOR);
+        sb.append(EscapeSequences.RESET_TEXT_COLOR);
         return board.toString();
     }
     

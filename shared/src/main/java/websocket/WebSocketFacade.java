@@ -1,6 +1,5 @@
 
 package websocket;
-package server;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
@@ -12,10 +11,21 @@ import dataaccess.*;
 import chess.ChessGame;
 
 public class WebSocketFacade extends WebSocketAdapter {
+    private final ChessClient client;
     private final Gson gson = new Gson();
     private Session session;
     private Integer gameID;
     private String authToken;
+
+    public WebSocketFacade(String url, ChessClient client) {
+        this.client = client;
+        // Initialize WebSocket connection here if needed
+    }
+    
+    public void connect(int gameID, String authToken) {
+        this.gameID = gameID;
+        this.authToken = authToken;
+    }
 
     @Override
     public void onWebSocketConnect(Session session) {
