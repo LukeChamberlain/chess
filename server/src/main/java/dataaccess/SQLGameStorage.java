@@ -4,6 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
+import chess.ChessGame;
+
 public class SQLGameStorage implements GameStorage {
 
     public SQLGameStorage() {
@@ -32,6 +36,7 @@ public String addGame(String gameName) throws DataAccessException {
     try (Connection conn = DatabaseManager.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
         stmt.setString(1, gameName);
+        stmt.setString(2, new Gson().toJson(new ChessGame()));
         stmt.executeUpdate();
         
         try (ResultSet rs = stmt.getGeneratedKeys()) {
@@ -91,11 +96,24 @@ public String addGame(String gameName) throws DataAccessException {
                 Game game = new Game(rs.getString("gameID"), rs.getString("gameName"));
                 game.whiteUsername = rs.getString("whiteUsername");
                 game.blackUsername = rs.getString("blackUsername");
+                game.gameState = new Gson().fromJson(rs.getString("gameState"), ChessGame.class);
                 return game;
             }
             return null;
         } catch (SQLException e) {
             throw new DataAccessException("Error retrieving game: " + e.getMessage());
+        }
+    }
+
+    public void updateGameState(String gameID, ChessGame game) throws DataAccessException {
+        String query = "UPDATE games SET gameState = ? WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, new Gson().toJson(game));
+            stmt.setInt(2, Integer.parseInt(gameID));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error updating game state: " + e.getMessage());
         }
     }
 }
