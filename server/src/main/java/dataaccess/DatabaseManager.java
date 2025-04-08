@@ -58,11 +58,11 @@ public class DatabaseManager {
                 }
                 try (var createGamesTable = setCatalogConn.prepareStatement(
                         "CREATE TABLE IF NOT EXISTS games (" +
-                                "gameID INT AUTO_INCREMENT PRIMARY KEY," +
-                                "gameName VARCHAR(255) NOT NULL," +
-                                "whiteUsername VARCHAR(255)," +
-                                "blackUsername VARCHAR(255)," +
-                                "gameState TEXT)")) {
+                                "gameID INT AUTO_INCREMENT PRIMARY KEY, " +
+                                "gameName VARCHAR(255) NOT NULL, " +
+                                "whiteUsername VARCHAR(255), " +
+                                "blackUsername VARCHAR(255), " +
+                                "gameState TEXT NOT NULL)")) {
                     createGamesTable.executeUpdate();
                 }
             }

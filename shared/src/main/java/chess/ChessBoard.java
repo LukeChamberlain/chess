@@ -34,7 +34,39 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
+    // In ChessBoard.java
+    public void loadFEN(String fen) {
+        resetBoard();
+        String[] parts = fen.split(" ");
+        String[] ranks = parts[0].split("/");
+        
+        for (int i = 0; i < 8; i++) {
+            int col = 1;
+            for (char c : ranks[7 - i].toCharArray()) {
+                if (Character.isDigit(c)) {
+                    col += Character.getNumericValue(c);
+                } else {
+                    ChessGame.TeamColor color = Character.isUpperCase(c) ? 
+                        ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+                    addPiece(new ChessPosition(i + 1, col), 
+                            createPiece(Character.toLowerCase(c), color));
+                    col++;
+                }
+            }
+        }
+    }
 
+    private ChessPiece createPiece(char pieceChar, ChessGame.TeamColor color) {
+        return switch (pieceChar) {
+            case 'k' -> new ChessPiece(color, ChessPiece.PieceType.KING);
+            case 'q' -> new ChessPiece(color, ChessPiece.PieceType.QUEEN);
+            case 'r' -> new ChessPiece(color, ChessPiece.PieceType.ROOK);
+            case 'b' -> new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+            case 'n' -> new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+            case 'p' -> new ChessPiece(color, ChessPiece.PieceType.PAWN);
+            default -> null;
+        };
+    }
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)

@@ -6,7 +6,7 @@ public interface DataAccess extends GameStorage, UserStorage {
     
     public interface GameStorage {
         void clearAllGames() throws DataAccessException;
-        void addGame(String gameID, String gameName) throws DataAccessException;
+        String addGame(String gameName) throws DataAccessException;
         List<Game> getAllGames() throws DataAccessException;
         Game getGame(String gameID) throws DataAccessException;
     }

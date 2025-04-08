@@ -26,7 +26,7 @@ public class ListGames{
                     return gson.toJson(Map.of("message", "Error: unauthorized"));
                 }
                 List<GameResponse> games = gameStorage.getAllGames().stream()
-                    .map(game -> new GameResponse(game.gameID, game.whiteUsername, game.blackUsername, game.gameName))
+                    .map(game -> new GameResponse(String.valueOf(game.gameID), game.whiteUsername, game.blackUsername, game.gameName))
                     .collect(Collectors.toList());
 
                 response.status(200);

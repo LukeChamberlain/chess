@@ -36,7 +36,7 @@ public class JoinGame {
             }
 
             // Validate game exists
-            String gameID = joinRequest.gameID;
+            int gameID = joinRequest.gameID;
             Game game = gameStorage.getGame(gameID);
             if (game == null) {
                 response.status(400);
@@ -72,15 +72,15 @@ public class JoinGame {
             gameStorage.updateGame(gameID, username, playerColor);
 
             response.status(200);
-            return gson.toJson(Map.of("gameID", gameID));
+            return gson.toJson(Map.of("gameID", gameID,"gameState", game.gameState));
         } catch (Exception e) {
             response.status(500);
-            return gson.toJson(Map.of("message", "Internal server error"));
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
     private static class JoinGameRequest {
         String playerColor;
-        String gameID;
+        int gameID;
     }
 }
